@@ -357,10 +357,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       artistCounts[entry.artistName] = (artistCounts[entry.artistName] || 0) + 1;
     });
 
-    const topMood = Object.keys(moodCounts).reduce((a, b) => 
-      moodCounts[a] > moodCounts[b] ? a : b, null);
-    const topArtist = Object.keys(artistCounts).reduce((a, b) => 
-      artistCounts[a] > artistCounts[b] ? a : b, null);
+    const topMood = Object.keys(moodCounts).length > 0 
+      ? Object.keys(moodCounts).reduce((a, b) => moodCounts[a] > moodCounts[b] ? a : b)
+      : null;
+    const topArtist = Object.keys(artistCounts).length > 0
+      ? Object.keys(artistCounts).reduce((a, b) => artistCounts[a] > artistCounts[b] ? a : b)
+      : null;
 
     await storage.createOrUpdateWeeklyStats({
       userId,
