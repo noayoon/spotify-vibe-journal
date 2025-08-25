@@ -45,6 +45,7 @@
   --spotify: hsl(141 76% 46%);
   --dark-bg: hsl(0 0% 7%);
   --dark-surface: hsl(0 0% 12%);
+  --dark-hover: hsl(0 0% 14%);
   --dark-elevated: hsl(0 0% 16%);
   --vibe-orange: hsl(16 100% 60%);
   --text-primary: hsl(0 0% 100%);
@@ -105,6 +106,10 @@
   
   .bg-dark-surface {
     background-color: var(--dark-surface);
+  }
+  
+  .bg-dark-hover {
+    background-color: var(--dark-hover);
   }
   
   .bg-dark-elevated {

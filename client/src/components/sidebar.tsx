@@ -20,7 +20,7 @@ export function Sidebar() {
           <h1 className="text-xl font-bold text-text-primary">Vibe Journal</h1>
         </div>
         
-        <nav className="space-y-2">
+        <nav className="space-y-1">
           {navigation.map((item) => {
             const isActive = location === item.href;
             const Icon = item.icon;
@@ -29,15 +29,15 @@ export function Sidebar() {
               <Link key={item.name} href={item.href}>
                 <a
                   className={cn(
-                    "flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors",
+                    "flex items-center space-x-3 px-3 py-2.5 mx-2 rounded-md transition-all duration-150 ease-in-out",
                     isActive
-                      ? "bg-dark-elevated text-spotify"
-                      : "text-text-secondary hover:bg-dark-elevated hover:text-text-primary"
+                      ? "bg-dark-elevated text-spotify font-medium"
+                      : "text-text-secondary hover:bg-dark-hover hover:text-text-primary"
                   )}
                   data-testid={`link-${item.name.toLowerCase().replace(" ", "-")}`}
                 >
                   <Icon className="h-5 w-5" />
-                  <span className={isActive ? "font-medium" : ""}>{item.name}</span>
+                  <span>{item.name}</span>
                 </a>
               </Link>
             );
