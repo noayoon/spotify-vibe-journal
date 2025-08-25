@@ -5,6 +5,17 @@ import { insertVibeEntrySchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Debug endpoint to show redirect URI
+  app.get("/api/debug/redirect-uri", (req, res) => {
+    const redirectUri = process.env.SPOTIFY_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/spotify/callback`;
+    res.json({ 
+      redirectUri,
+      host: req.get('host'),
+      protocol: req.protocol,
+      fullUrl: `${req.protocol}://${req.get('host')}${req.originalUrl}`
+    });
+  });
+
   // Spotify OAuth routes
   app.get("/api/auth/spotify", (req, res) => {
     const clientId = process.env.SPOTIFY_CLIENT_ID;
