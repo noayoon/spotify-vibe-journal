@@ -5,14 +5,23 @@ import { insertVibeEntrySchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Debug endpoint to show redirect URI
-  app.get("/api/debug/redirect-uri", (req, res) => {
+  // Debug endpoint to show all Spotify config
+  app.get("/api/debug/spotify-config", (req, res) => {
     const redirectUri = process.env.SPOTIFY_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/spotify/callback`;
+    const clientId = process.env.SPOTIFY_CLIENT_ID;
+    const hasClientSecret = !!process.env.SPOTIFY_CLIENT_SECRET;
+    const scopes = 'user-read-currently-playing user-read-playback-state user-read-email user-read-private';
+    const authUrl = `https://accounts.spotify.com/authorize?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+    
     res.json({ 
       redirectUri,
+      clientId: clientId ? `${clientId.substring(0, 8)}...` : 'NOT SET',
+      hasClientSecret,
       host: req.get('host'),
       protocol: req.protocol,
-      fullUrl: `${req.protocol}://${req.get('host')}${req.originalUrl}`
+      authUrl,
+      fullUrl: `${req.protocol}://${req.get('host')}${req.originalUrl}`,
+      scopes
     });
   });
 
