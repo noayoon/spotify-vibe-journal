@@ -7,7 +7,8 @@ import { z } from "zod";
 export async function registerRoutes(app: Express): Promise<Server> {
   // Debug endpoint to show all Spotify config
   app.get("/api/debug/spotify-config", (req, res) => {
-    const redirectUri = process.env.SPOTIFY_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/spotify/callback`;
+    const protocol = req.get('host')?.includes('replit.dev') ? 'https' : req.protocol;
+    const redirectUri = process.env.SPOTIFY_REDIRECT_URI || `${protocol}://${req.get('host')}/api/auth/spotify/callback`;
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const hasClientSecret = !!process.env.SPOTIFY_CLIENT_SECRET;
     const scopes = 'user-read-currently-playing user-read-playback-state user-read-email user-read-private';
@@ -28,7 +29,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Spotify OAuth routes
   app.get("/api/auth/spotify", (req, res) => {
     const clientId = process.env.SPOTIFY_CLIENT_ID;
-    const redirectUri = process.env.SPOTIFY_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/spotify/callback`;
+    const protocol = req.get('host')?.includes('replit.dev') ? 'https' : req.protocol;
+    const redirectUri = process.env.SPOTIFY_REDIRECT_URI || `${protocol}://${req.get('host')}/api/auth/spotify/callback`;
     const scopes = 'user-read-currently-playing user-read-playback-state user-read-email user-read-private';
     
     const authUrl = `https://accounts.spotify.com/authorize?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${encodeURIComponent(redirectUri)}`;
@@ -46,7 +48,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const clientId = process.env.SPOTIFY_CLIENT_ID;
       const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-      const redirectUri = process.env.SPOTIFY_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/spotify/callback`;
+      const protocol = req.get('host')?.includes('replit.dev') ? 'https' : req.protocol;
+      const redirectUri = process.env.SPOTIFY_REDIRECT_URI || `${protocol}://${req.get('host')}/api/auth/spotify/callback`;
 
       // Exchange code for tokens
       const tokenResponse = await fetch('https://accounts.spotify.com/api/token', {
