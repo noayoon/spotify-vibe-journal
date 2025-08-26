@@ -109,7 +109,7 @@ export function VibeCapture() {
               onChange={(e) => setNote(e.target.value.slice(0, 80))}
               placeholder="What's this vibe about?"
               maxLength={80}
-              className="h-12 px-4 bg-dark-elevated border-0 rounded-full text-text-primary placeholder-text-secondary-custom focus:ring-2 focus:ring-white/10 focus:bg-dark-elevated transition-all duration-200 text-sm"
+              className="h-12 px-4 bg-dark-elevated border-0 rounded-full text-text-primary placeholder-[hsl(0_0%_70%)] focus:ring-2 focus:ring-white/10 focus:bg-dark-elevated transition-all duration-200 text-sm"
               data-testid="input-note"
             />
           </div>
