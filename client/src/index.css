@@ -139,4 +139,8 @@
   .border-dark-elevated {
     border-color: var(--dark-elevated);
   }
+  
+  .placeholder-text-secondary-custom::placeholder {
+    color: var(--text-secondary);
+  }
 }
