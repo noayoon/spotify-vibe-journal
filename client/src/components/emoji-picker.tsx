@@ -113,7 +113,8 @@ export function EmojiPicker({ isOpen, onClose, onEmojiSelect, selectedEmoji }: E
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search emojis..."
-            className="pl-10 bg-dark-elevated border-text-secondary/20 text-text-primary placeholder-text-secondary/70"
+            className="pl-10 bg-dark-elevated border-text-secondary/20 !text-white placeholder:!text-gray-400"
+            style={{ color: 'white' }}
             data-testid="input-emoji-search"
           />
         </div>
