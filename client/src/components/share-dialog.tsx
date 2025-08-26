@@ -192,11 +192,11 @@ export function ShareDialog({ vibeEntry, children }: ShareDialogProps) {
             <div className="bg-dark-base rounded-lg p-3 hover:bg-dark-elevated transition-colors cursor-pointer group" onClick={copyToClipboard}>
               <div className="flex items-center gap-2">
                 <div 
-                  className="flex-1 text-sm px-3 py-2 overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer transition-colors"
+                  className="flex-1 text-sm px-3 py-2 break-all cursor-pointer transition-colors"
                   style={{ color: '#ffffff !important' }}
                   data-testid="text-share-url"
                 >
-                  <span style={{ color: '#ffffff' }} className="group-hover:text-blue-400 transition-colors">
+                  <span style={{ color: '#ffffff !important' }} className="group-hover:text-blue-400 transition-colors">
                     {shareUrl}
                   </span>
                 </div>
@@ -207,7 +207,7 @@ export function ShareDialog({ vibeEntry, children }: ShareDialogProps) {
                   }}
                   size="sm"
                   variant="ghost"
-                  className="text-green-500 hover:text-green-400 hover:bg-green-500/10"
+                  className="text-green-500 hover:text-green-400 hover:bg-green-500/10 flex-shrink-0"
                   data-testid="button-copy-url"
                 >
                   {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -219,11 +219,12 @@ export function ShareDialog({ vibeEntry, children }: ShareDialogProps) {
               <Button
                 onClick={openSharedVibe}
                 variant="outline"
-                className="flex-1 border-dark-border text-text-primary hover:bg-dark-base"
+                className="flex-1 border-dark-border hover:bg-dark-base"
+                style={{ color: '#ffffff !important' }}
                 data-testid="button-preview-share"
               >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Preview
+                <ExternalLink className="w-4 h-4 mr-2" style={{ color: '#ffffff !important' }} />
+                <span style={{ color: '#ffffff !important' }}>Preview</span>
               </Button>
               <Button
                 onClick={copyToClipboard}
