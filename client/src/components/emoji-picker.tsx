@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Comprehensive emoji data organized by categories
@@ -91,19 +91,10 @@ export function EmojiPicker({ isOpen, onClose, onEmojiSelect, selectedEmoji }: E
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md max-h-[80vh] bg-dark-surface border-dark-elevated">
-        <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-text-primary">
             Choose an emoji
           </DialogTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="h-8 w-8 p-0 text-text-secondary hover:bg-dark-elevated"
-            data-testid="button-close-emoji-picker"
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </DialogHeader>
 
         {/* Search Bar */}
