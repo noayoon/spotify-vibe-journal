@@ -8,6 +8,7 @@ import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
 import Timeline from "@/pages/timeline";
 import Profile from "@/pages/profile";
+import Insights from "@/pages/insights";
 import { useAuth } from "@/hooks/use-auth";
 import { Sidebar } from "@/components/sidebar";
 
@@ -42,6 +43,7 @@ function Router() {
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/timeline" component={Timeline} />
+        <Route path="/insights" component={Insights} />
         <Route path="/profile" component={Profile} />
         <Route component={NotFound} />
       </Switch>
