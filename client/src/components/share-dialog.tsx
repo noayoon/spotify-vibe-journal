@@ -189,16 +189,19 @@ export function ShareDialog({ vibeEntry, children }: ShareDialogProps) {
               <p className="text-text-secondary">Your vibe moment is ready to share!</p>
             </div>
 
-            <div className="bg-dark-base rounded-lg p-3">
+            <div className="bg-dark-base rounded-lg p-3 hover:bg-dark-elevated transition-colors cursor-pointer group" onClick={copyToClipboard}>
               <div className="flex items-center gap-2">
                 <Input
                   value={shareUrl}
                   readOnly
-                  className="bg-transparent border-none text-sm text-text-secondary flex-1"
+                  className="bg-transparent border-none text-sm text-text-primary group-hover:text-blue-400 flex-1 cursor-pointer transition-colors"
                   data-testid="input-share-url"
                 />
                 <Button
-                  onClick={copyToClipboard}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    copyToClipboard();
+                  }}
                   size="sm"
                   variant="ghost"
                   className="text-green-500 hover:text-green-400 hover:bg-green-500/10"
