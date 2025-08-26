@@ -191,13 +191,15 @@ export function ShareDialog({ vibeEntry, children }: ShareDialogProps) {
 
             <div className="bg-dark-base rounded-lg p-3 hover:bg-dark-elevated transition-colors cursor-pointer group" onClick={copyToClipboard}>
               <div className="flex items-center gap-2">
-                <Input
-                  value={shareUrl}
-                  readOnly
-                  className="bg-transparent border-none text-sm text-white group-hover:text-blue-400 flex-1 cursor-pointer transition-colors"
-                  style={{ color: 'white !important' }}
-                  data-testid="input-share-url"
-                />
+                <div 
+                  className="flex-1 text-sm px-3 py-2 overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer transition-colors"
+                  style={{ color: '#ffffff !important' }}
+                  data-testid="text-share-url"
+                >
+                  <span style={{ color: '#ffffff' }} className="group-hover:text-blue-400 transition-colors">
+                    {shareUrl}
+                  </span>
+                </div>
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
