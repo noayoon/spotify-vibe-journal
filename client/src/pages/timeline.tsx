@@ -21,9 +21,9 @@ export default function Timeline() {
                 <SelectValue placeholder="Filter by..." />
               </SelectTrigger>
               <SelectContent className="bg-dark-surface border-dark-elevated">
-                <SelectItem value="all">All Vibes</SelectItem>
-                <SelectItem value="emoji">By Emoji</SelectItem>
-                <SelectItem value="artist">By Artist</SelectItem>
+                <SelectItem value="all" className="text-white hover:bg-dark-elevated focus:bg-dark-elevated">All Vibes</SelectItem>
+                <SelectItem value="emoji" className="text-white hover:bg-dark-elevated focus:bg-dark-elevated">By Emoji</SelectItem>
+                <SelectItem value="artist" className="text-white hover:bg-dark-elevated focus:bg-dark-elevated">By Artist</SelectItem>
               </SelectContent>
             </Select>
           </div>
