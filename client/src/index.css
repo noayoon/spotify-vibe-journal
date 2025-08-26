@@ -141,6 +141,6 @@
   }
   
   .placeholder-text-secondary-custom::placeholder {
-    color: var(--text-secondary);
+    color: var(--text-secondary) !important;
   }
 }
