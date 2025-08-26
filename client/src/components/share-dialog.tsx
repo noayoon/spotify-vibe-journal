@@ -219,12 +219,12 @@ export function ShareDialog({ vibeEntry, children }: ShareDialogProps) {
               <Button
                 onClick={openSharedVibe}
                 variant="outline"
-                className="flex-1 border-dark-border hover:bg-dark-base"
-                style={{ color: '#ffffff !important' }}
+                className="flex-1 border-gray-600 bg-transparent hover:bg-dark-base"
+                style={{ color: '#60a5fa !important', borderColor: '#4b5563 !important' }}
                 data-testid="button-preview-share"
               >
-                <ExternalLink className="w-4 h-4 mr-2" style={{ color: '#ffffff !important' }} />
-                <span style={{ color: '#ffffff !important' }}>Preview</span>
+                <ExternalLink className="w-4 h-4 mr-2" style={{ color: '#60a5fa !important' }} />
+                <span style={{ color: '#60a5fa !important' }}>Preview</span>
               </Button>
               <Button
                 onClick={copyToClipboard}
