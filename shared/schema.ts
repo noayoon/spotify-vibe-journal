@@ -1,5 +1,5 @@
 import { sql, relations } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -25,6 +25,8 @@ export const vibeEntries = pgTable("vibe_entries", {
   albumName: text("album_name").notNull(),
   albumArt: text("album_art"),
   spotifyTrackId: text("spotify_track_id"),
+  isShared: boolean("is_shared").default(false).notNull(),
+  shareId: varchar("share_id").unique(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -39,22 +41,41 @@ export const weeklyStats = pgTable("weekly_stats", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const sharedVibes = pgTable("shared_vibes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  vibeEntryId: varchar("vibe_entry_id").notNull().references(() => vibeEntries.id, { onDelete: "cascade" }),
+  shareId: varchar("share_id").notNull().unique(),
+  title: text("title"),
+  description: text("description"),
+  viewCount: integer("view_count").default(0).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const usersRelations = relations(users, ({ many }) => ({
   vibeEntries: many(vibeEntries),
   weeklyStats: many(weeklyStats),
 }));
 
-export const vibeEntriesRelations = relations(vibeEntries, ({ one }) => ({
+export const vibeEntriesRelations = relations(vibeEntries, ({ one, many }) => ({
   user: one(users, {
     fields: [vibeEntries.userId],
     references: [users.id],
   }),
+  sharedVibes: many(sharedVibes),
 }));
 
 export const weeklyStatsRelations = relations(weeklyStats, ({ one }) => ({
   user: one(users, {
     fields: [weeklyStats.userId],
     references: [users.id],
+  }),
+}));
+
+export const sharedVibesRelations = relations(sharedVibes, ({ one }) => ({
+  vibeEntry: one(vibeEntries, {
+    fields: [sharedVibes.vibeEntryId],
+    references: [vibeEntries.id],
   }),
 }));
 
@@ -73,9 +94,16 @@ export const insertWeeklyStatsSchema = createInsertSchema(weeklyStats).omit({
   createdAt: true,
 });
 
+export const insertSharedVibeSchema = createInsertSchema(sharedVibes).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertVibeEntry = z.infer<typeof insertVibeEntrySchema>;
 export type VibeEntry = typeof vibeEntries.$inferSelect;
 export type InsertWeeklyStats = z.infer<typeof insertWeeklyStatsSchema>;
 export type WeeklyStats = typeof weeklyStats.$inferSelect;
+export type InsertSharedVibe = z.infer<typeof insertSharedVibeSchema>;
+export type SharedVibe = typeof sharedVibes.$inferSelect;

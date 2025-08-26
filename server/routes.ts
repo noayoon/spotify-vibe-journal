@@ -1,8 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertVibeEntrySchema } from "@shared/schema";
+import { insertVibeEntrySchema, insertSharedVibeSchema } from "@shared/schema";
 import { z } from "zod";
+import { randomBytes } from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Debug endpoint to show all Spotify config
@@ -342,6 +343,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Export error:', error);
       res.status(500).json({ error: 'Failed to export data' });
+    }
+  });
+
+  // Sharing routes
+  app.post("/api/shared-vibes", async (req, res) => {
+    const userId = (req.session as any)?.userId;
+    
+    if (!userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const { vibeEntryId, title, description } = req.body;
+      
+      // Generate unique share ID
+      const shareId = randomBytes(16).toString('hex');
+      
+      const sharedVibeData = insertSharedVibeSchema.parse({
+        vibeEntryId,
+        shareId,
+        title: title || null,
+        description: description || null
+      });
+
+      const sharedVibe = await storage.createSharedVibe(sharedVibeData);
+      
+      // Update the vibe entry to mark it as shared
+      await storage.updateVibeEntry(vibeEntryId, userId, { 
+        isShared: true, 
+        shareId 
+      });
+      
+      res.json({
+        ...sharedVibe,
+        shareUrl: `${req.protocol}://${req.get('host')}/share/${shareId}`
+      });
+    } catch (error) {
+      console.error('Create shared vibe error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: 'Failed to create shared vibe' });
+    }
+  });
+
+  app.get("/api/shared-vibes/:shareId", async (req, res) => {
+    try {
+      const { shareId } = req.params;
+      const sharedVibe = await storage.getSharedVibe(shareId);
+      
+      if (!sharedVibe) {
+        return res.status(404).json({ error: "Shared vibe not found" });
+      }
+
+      // Increment view count
+      await storage.incrementShareViewCount(shareId);
+      
+      res.json(sharedVibe);
+    } catch (error) {
+      console.error('Get shared vibe error:', error);
+      res.status(500).json({ error: 'Failed to get shared vibe' });
+    }
+  });
+
+  app.get("/api/my-shared-vibes", async (req, res) => {
+    const userId = (req.session as any)?.userId;
+    
+    if (!userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const sharedVibes = await storage.getUserSharedVibes(userId);
+      
+      const result = sharedVibes.map(sv => ({
+        ...sv,
+        shareUrl: `${req.protocol}://${req.get('host')}/share/${sv.shareId}`
+      }));
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Get user shared vibes error:', error);
+      res.status(500).json({ error: 'Failed to get shared vibes' });
+    }
+  });
+
+  app.delete("/api/shared-vibes/:shareId", async (req, res) => {
+    const userId = (req.session as any)?.userId;
+    
+    if (!userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const success = await storage.deleteSharedVibe(req.params.shareId, userId);
+      
+      if (!success) {
+        return res.status(404).json({ error: "Shared vibe not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete shared vibe error:', error);
+      res.status(500).json({ error: 'Failed to delete shared vibe' });
     }
   });
 

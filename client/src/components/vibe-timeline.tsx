@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import { Music, MoreVertical } from "lucide-react";
+import { Music } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ShareDialog } from "@/components/share-dialog";
 
 interface VibeEntry {
   id: string;
@@ -147,9 +148,9 @@ export function VibeTimeline({ limit = 20, showLoadMore = false, filter = "all",
                   <p className="text-xs text-text-secondary" data-testid="text-entry-timestamp">
                     {formatDistanceToNow(new Date(entry.createdAt), { addSuffix: true })}
                   </p>
-                  <button className="mt-1 p-1 hover:bg-dark-bg rounded text-text-secondary">
-                    <MoreVertical className="h-4 w-4" />
-                  </button>
+                  <div className="mt-1">
+                    <ShareDialog vibeEntry={entry} />
+                  </div>
                 </div>
               </div>
             </div>

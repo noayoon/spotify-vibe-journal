@@ -1,4 +1,4 @@
-import { users, vibeEntries, weeklyStats, type User, type InsertUser, type VibeEntry, type InsertVibeEntry, type WeeklyStats, type InsertWeeklyStats } from "@shared/schema";
+import { users, vibeEntries, weeklyStats, sharedVibes, type User, type InsertUser, type VibeEntry, type InsertVibeEntry, type WeeklyStats, type InsertWeeklyStats, type SharedVibe, type InsertSharedVibe } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
 
@@ -15,11 +15,19 @@ export interface IStorage {
   getVibeEntriesByArtist(userId: string, artist: string): Promise<VibeEntry[]>;
   createVibeEntry(entry: InsertVibeEntry): Promise<VibeEntry>;
   deleteVibeEntry(id: string, userId: string): Promise<boolean>;
+  updateVibeEntry(id: string, userId: string, updates: Partial<VibeEntry>): Promise<VibeEntry | undefined>;
 
   // Weekly stats operations
   getWeeklyStats(userId: string, weekStart: Date): Promise<WeeklyStats | undefined>;
   createOrUpdateWeeklyStats(stats: InsertWeeklyStats): Promise<WeeklyStats>;
   getCurrentWeekStats(userId: string): Promise<WeeklyStats | undefined>;
+
+  // Shared vibe operations
+  createSharedVibe(sharedVibe: InsertSharedVibe): Promise<SharedVibe>;
+  getSharedVibe(shareId: string): Promise<(SharedVibe & { vibeEntry: VibeEntry; user: User }) | undefined>;
+  incrementShareViewCount(shareId: string): Promise<void>;
+  getUserSharedVibes(userId: string): Promise<(SharedVibe & { vibeEntry: VibeEntry })[]>;
+  deleteSharedVibe(shareId: string, userId: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -88,7 +96,16 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(vibeEntries)
       .where(and(eq(vibeEntries.id, id), eq(vibeEntries.userId, userId)));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async updateVibeEntry(id: string, userId: string, updates: Partial<VibeEntry>): Promise<VibeEntry | undefined> {
+    const [vibeEntry] = await db
+      .update(vibeEntries)
+      .set(updates)
+      .where(and(eq(vibeEntries.id, id), eq(vibeEntries.userId, userId)))
+      .returning();
+    return vibeEntry || undefined;
   }
 
   async getWeeklyStats(userId: string, weekStart: Date): Promise<WeeklyStats | undefined> {
@@ -124,6 +141,69 @@ export class DatabaseStorage implements IStorage {
     weekStart.setHours(0, 0, 0, 0);
     
     return this.getWeeklyStats(userId, weekStart);
+  }
+
+  async createSharedVibe(sharedVibe: InsertSharedVibe): Promise<SharedVibe> {
+    const [created] = await db
+      .insert(sharedVibes)
+      .values(sharedVibe)
+      .returning();
+    return created;
+  }
+
+  async getSharedVibe(shareId: string): Promise<(SharedVibe & { vibeEntry: VibeEntry; user: User }) | undefined> {
+    const [result] = await db
+      .select()
+      .from(sharedVibes)
+      .innerJoin(vibeEntries, eq(sharedVibes.vibeEntryId, vibeEntries.id))
+      .innerJoin(users, eq(vibeEntries.userId, users.id))
+      .where(and(eq(sharedVibes.shareId, shareId), eq(sharedVibes.isActive, true)));
+    
+    if (!result) return undefined;
+    
+    return {
+      ...result.shared_vibes,
+      vibeEntry: result.vibe_entries,
+      user: result.users,
+    };
+  }
+
+  async incrementShareViewCount(shareId: string): Promise<void> {
+    await db
+      .update(sharedVibes)
+      .set({ viewCount: sql`${sharedVibes.viewCount} + 1` })
+      .where(eq(sharedVibes.shareId, shareId));
+  }
+
+  async getUserSharedVibes(userId: string): Promise<(SharedVibe & { vibeEntry: VibeEntry })[]> {
+    const results = await db
+      .select()
+      .from(sharedVibes)
+      .innerJoin(vibeEntries, eq(sharedVibes.vibeEntryId, vibeEntries.id))
+      .where(and(eq(vibeEntries.userId, userId), eq(sharedVibes.isActive, true)))
+      .orderBy(desc(sharedVibes.createdAt));
+    
+    return results.map(result => ({
+      ...result.shared_vibes,
+      vibeEntry: result.vibe_entries,
+    }));
+  }
+
+  async deleteSharedVibe(shareId: string, userId: string): Promise<boolean> {
+    const result = await db
+      .update(sharedVibes)
+      .set({ isActive: false })
+      .where(
+        and(
+          eq(sharedVibes.shareId, shareId),
+          eq(sharedVibes.vibeEntryId, 
+            db.select({ id: vibeEntries.id })
+              .from(vibeEntries)
+              .where(and(eq(vibeEntries.id, sharedVibes.vibeEntryId), eq(vibeEntries.userId, userId)))
+          )
+        )
+      );
+    return (result.rowCount ?? 0) > 0;
   }
 }
 
