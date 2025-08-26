@@ -5,7 +5,7 @@ export function useNowPlaying() {
   return useQuery<NowPlayingResponse>({
     queryKey: ["/api/spotify/now-playing"],
     queryFn: getCurrentTrack,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 5000, // Refetch every 5 seconds
     retry: false,
   });
 }

@@ -30,7 +30,7 @@ export function NowPlaying() {
             <p className="text-text-secondary">Failed to load current track</p>
             <p className="text-sm text-text-secondary">Check your Spotify connection</p>
           </div>
-        ) : !nowPlaying?.isPlaying ? (
+        ) : !nowPlaying?.isPlaying || !nowPlaying?.track ? (
           <div className="text-center py-8">
             <Pause className="mx-auto h-12 w-12 text-text-secondary mb-4" />
             <p className="text-text-secondary">No music playing</p>
