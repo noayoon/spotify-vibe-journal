@@ -9,6 +9,7 @@ import Dashboard from "@/pages/dashboard";
 import Timeline from "@/pages/timeline";
 import Profile from "@/pages/profile";
 import Insights from "@/pages/insights";
+import SharedVibe from "@/pages/shared-vibe";
 import { useAuth } from "@/hooks/use-auth";
 import { Sidebar } from "@/components/sidebar";
 
@@ -34,20 +35,26 @@ function Router() {
     );
   }
 
-  if (!user) {
-    return <Login />;
-  }
-
   return (
-    <AuthenticatedLayout>
-      <Switch>
-        <Route path="/" component={Dashboard} />
-        <Route path="/timeline" component={Timeline} />
-        <Route path="/insights" component={Insights} />
-        <Route path="/profile" component={Profile} />
-        <Route component={NotFound} />
-      </Switch>
-    </AuthenticatedLayout>
+    <Switch>
+      {/* Public route for shared vibes */}
+      <Route path="/share/:shareId" component={SharedVibe} />
+      
+      {/* Protected routes */}
+      {user ? (
+        <AuthenticatedLayout>
+          <Switch>
+            <Route path="/" component={Dashboard} />
+            <Route path="/timeline" component={Timeline} />
+            <Route path="/insights" component={Insights} />
+            <Route path="/profile" component={Profile} />
+            <Route component={NotFound} />
+          </Switch>
+        </AuthenticatedLayout>
+      ) : (
+        <Login />
+      )}
+    </Switch>
   );
 }
 
