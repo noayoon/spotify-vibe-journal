@@ -194,7 +194,8 @@ export function ShareDialog({ vibeEntry, children }: ShareDialogProps) {
                 <Input
                   value={shareUrl}
                   readOnly
-                  className="bg-transparent border-none text-sm text-text-primary group-hover:text-blue-400 flex-1 cursor-pointer transition-colors"
+                  className="bg-transparent border-none text-sm text-white group-hover:text-blue-400 flex-1 cursor-pointer transition-colors"
+                  style={{ color: 'white !important' }}
                   data-testid="input-share-url"
                 />
                 <Button
