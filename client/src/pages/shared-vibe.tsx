@@ -158,7 +158,7 @@ export default function SharedVibe() {
             {/* Track Info & Vibe */}
             <div className="flex-1 space-y-6">
               <div>
-                <h2 className="text-2xl font-bold mb-2">{sharedVibe.vibeEntry.trackName}</h2>
+                <h2 className="text-2xl font-bold mb-2 text-text-primary">{sharedVibe.vibeEntry.trackName}</h2>
                 <p className="text-xl text-text-secondary mb-1">{sharedVibe.vibeEntry.artistName}</p>
                 <p className="text-text-secondary">{sharedVibe.vibeEntry.albumName}</p>
               </div>
@@ -170,7 +170,7 @@ export default function SharedVibe() {
                     The Vibe
                   </p>
                   {sharedVibe.vibeEntry.note ? (
-                    <p className="text-lg">{sharedVibe.vibeEntry.note}</p>
+                    <p className="text-lg text-text-primary">{sharedVibe.vibeEntry.note}</p>
                   ) : (
                     <p className="text-text-secondary italic">No note added</p>
                   )}
