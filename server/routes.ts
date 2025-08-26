@@ -253,6 +253,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get most used emojis for a user
+  app.get("/api/most-used-emojis", async (req, res) => {
+    const userId = (req.session as any)?.userId;
+    
+    if (!userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const { limit = "6" } = req.query;
+    
+    try {
+      const mostUsedEmojis = await storage.getMostUsedEmojis(userId, parseInt(limit as string));
+      res.json(mostUsedEmojis);
+    } catch (error) {
+      console.error('Get most used emojis error:', error);
+      res.status(500).json({ error: 'Failed to get most used emojis' });
+    }
+  });
+
   app.post("/api/vibe-entries", async (req, res) => {
     const userId = (req.session as any)?.userId;
     
@@ -267,6 +286,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const entry = await storage.createVibeEntry(entryData);
+      
+      // Track emoji usage
+      await storage.trackEmojiUsage(userId, entryData.emoji);
       
       // Update weekly stats
       await updateWeeklyStats(userId);

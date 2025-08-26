@@ -1,4 +1,4 @@
-import { users, vibeEntries, weeklyStats, sharedVibes, type User, type InsertUser, type VibeEntry, type InsertVibeEntry, type WeeklyStats, type InsertWeeklyStats, type SharedVibe, type InsertSharedVibe } from "@shared/schema";
+import { users, vibeEntries, weeklyStats, sharedVibes, emojiUsage, type User, type InsertUser, type VibeEntry, type InsertVibeEntry, type WeeklyStats, type InsertWeeklyStats, type SharedVibe, type InsertSharedVibe, type EmojiUsage, type InsertEmojiUsage } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
 
@@ -28,6 +28,10 @@ export interface IStorage {
   incrementShareViewCount(shareId: string): Promise<void>;
   getUserSharedVibes(userId: string): Promise<(SharedVibe & { vibeEntry: VibeEntry })[]>;
   deleteSharedVibe(shareId: string, userId: string): Promise<boolean>;
+
+  // Emoji usage operations
+  trackEmojiUsage(userId: string, emoji: string): Promise<void>;
+  getMostUsedEmojis(userId: string, limit?: number): Promise<EmojiUsage[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -204,6 +208,43 @@ export class DatabaseStorage implements IStorage {
         )
       );
     return (result.rowCount ?? 0) > 0;
+  }
+
+  async trackEmojiUsage(userId: string, emoji: string): Promise<void> {
+    // Try to update existing emoji usage first
+    const [existing] = await db
+      .select()
+      .from(emojiUsage)
+      .where(and(eq(emojiUsage.userId, userId), eq(emojiUsage.emoji, emoji)));
+
+    if (existing) {
+      // Update existing usage count and last used timestamp
+      await db
+        .update(emojiUsage)
+        .set({ 
+          usageCount: existing.usageCount + 1,
+          lastUsed: new Date()
+        })
+        .where(and(eq(emojiUsage.userId, userId), eq(emojiUsage.emoji, emoji)));
+    } else {
+      // Create new emoji usage record
+      await db
+        .insert(emojiUsage)
+        .values({
+          userId,
+          emoji,
+          usageCount: 1
+        });
+    }
+  }
+
+  async getMostUsedEmojis(userId: string, limit = 6): Promise<EmojiUsage[]> {
+    return await db
+      .select()
+      .from(emojiUsage)
+      .where(eq(emojiUsage.userId, userId))
+      .orderBy(desc(emojiUsage.usageCount), desc(emojiUsage.lastUsed))
+      .limit(limit);
   }
 }
 

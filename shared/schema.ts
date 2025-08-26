@@ -52,9 +52,19 @@ export const sharedVibes = pgTable("shared_vibes", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const emojiUsage = pgTable("emoji_usage", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  emoji: text("emoji").notNull(),
+  usageCount: integer("usage_count").default(1).notNull(),
+  lastUsed: timestamp("last_used").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const usersRelations = relations(users, ({ many }) => ({
   vibeEntries: many(vibeEntries),
   weeklyStats: many(weeklyStats),
+  emojiUsage: many(emojiUsage),
 }));
 
 export const vibeEntriesRelations = relations(vibeEntries, ({ one, many }) => ({
@@ -79,6 +89,13 @@ export const sharedVibesRelations = relations(sharedVibes, ({ one }) => ({
   }),
 }));
 
+export const emojiUsageRelations = relations(emojiUsage, ({ one }) => ({
+  user: one(users, {
+    fields: [emojiUsage.userId],
+    references: [users.id],
+  }),
+}));
+
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
@@ -99,6 +116,12 @@ export const insertSharedVibeSchema = createInsertSchema(sharedVibes).omit({
   createdAt: true,
 });
 
+export const insertEmojiUsageSchema = createInsertSchema(emojiUsage).omit({
+  id: true,
+  createdAt: true,
+  lastUsed: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertVibeEntry = z.infer<typeof insertVibeEntrySchema>;
@@ -107,3 +130,5 @@ export type InsertWeeklyStats = z.infer<typeof insertWeeklyStatsSchema>;
 export type WeeklyStats = typeof weeklyStats.$inferSelect;
 export type InsertSharedVibe = z.infer<typeof insertSharedVibeSchema>;
 export type SharedVibe = typeof sharedVibes.$inferSelect;
+export type InsertEmojiUsage = z.infer<typeof insertEmojiUsageSchema>;
+export type EmojiUsage = typeof emojiUsage.$inferSelect;

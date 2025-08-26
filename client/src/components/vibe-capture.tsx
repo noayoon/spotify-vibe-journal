@@ -2,21 +2,29 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Heart } from "lucide-react";
+import { Heart, Plus } from "lucide-react";
 import { useNowPlaying } from "@/hooks/use-now-playing";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
-const EMOJI_OPTIONS = ["😊", "😢", "🔥", "😴", "💃", "🧘"];
+const DEFAULT_EMOJI_OPTIONS = ["😊", "😢", "🔥", "😴", "💃", "🧘"];
 
 export function VibeCapture() {
   const [selectedEmoji, setSelectedEmoji] = useState<string>("");
   const [note, setNote] = useState("");
+  const [customEmoji, setCustomEmoji] = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { data: nowPlaying } = useNowPlaying();
+
+  // Fetch user's most used emojis
+  const { data: mostUsedEmojis = [] } = useQuery({
+    queryKey: ["/api/most-used-emojis"],
+    enabled: true,
+  });
 
   const captureVibeMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -26,8 +34,11 @@ export function VibeCapture() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/vibe-entries"] });
       queryClient.invalidateQueries({ queryKey: ["/api/weekly-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/most-used-emojis"] });
       setSelectedEmoji("");
       setNote("");
+      setCustomEmoji("");
+      setShowCustomInput(false);
       toast({
         title: "Vibe captured!",
         description: "Your musical moment has been saved",
@@ -41,6 +52,19 @@ export function VibeCapture() {
       });
     },
   });
+
+  const handleAddCustomEmoji = () => {
+    if (customEmoji.trim()) {
+      setSelectedEmoji(customEmoji.trim());
+      setCustomEmoji("");
+      setShowCustomInput(false);
+    }
+  };
+
+  // Combine most used emojis with default options, avoiding duplicates
+  const emojiOptions = mostUsedEmojis.length > 0 
+    ? [...new Set([...mostUsedEmojis.map((item: any) => item.emoji), ...DEFAULT_EMOJI_OPTIONS])]
+    : DEFAULT_EMOJI_OPTIONS;
 
   const handleCapture = () => {
     if (!selectedEmoji) {
@@ -81,9 +105,11 @@ export function VibeCapture() {
       </CardHeader>
       <CardContent className="space-y-6">
         <div>
-          <p className="text-sm text-text-secondary mb-3">Choose your vibe:</p>
+          <p className="text-sm text-text-secondary mb-3">
+            {mostUsedEmojis.length > 0 ? "Your most used vibes:" : "Choose your vibe:"}
+          </p>
           <div className="grid grid-cols-6 gap-3">
-            {EMOJI_OPTIONS.map((emoji) => (
+            {emojiOptions.slice(0, 5).map((emoji) => (
               <button
                 key={emoji}
                 onClick={() => setSelectedEmoji(emoji)}
@@ -96,7 +122,54 @@ export function VibeCapture() {
                 {emoji}
               </button>
             ))}
+            <button
+              onClick={() => setShowCustomInput(true)}
+              className={cn(
+                "p-3 text-lg hover:bg-dark-elevated rounded-lg transition-colors border-2 border-dashed border-text-secondary/30 text-text-secondary",
+                "flex items-center justify-center"
+              )}
+              data-testid="button-add-custom-emoji"
+            >
+              <Plus className="h-5 w-5" />
+            </button>
           </div>
+          
+          {showCustomInput && (
+            <div className="mt-4 p-4 bg-dark-elevated rounded-lg">
+              <p className="text-sm text-text-secondary mb-3">Add any emoji:</p>
+              <div className="flex gap-2">
+                <Input
+                  value={customEmoji}
+                  onChange={(e) => setCustomEmoji(e.target.value)}
+                  placeholder="Type or paste any emoji"
+                  className="h-10 bg-dark-surface border-text-secondary/20 text-text-primary placeholder-text-secondary/70"
+                  maxLength={10}
+                  data-testid="input-custom-emoji"
+                />
+                <Button
+                  onClick={handleAddCustomEmoji}
+                  disabled={!customEmoji.trim()}
+                  size="sm"
+                  className="bg-spotify hover:bg-spotify/90 text-dark-bg"
+                  data-testid="button-add-emoji"
+                >
+                  Add
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowCustomInput(false);
+                    setCustomEmoji("");
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="border-text-secondary/20 text-text-secondary hover:bg-dark-surface"
+                  data-testid="button-cancel-emoji"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div>
