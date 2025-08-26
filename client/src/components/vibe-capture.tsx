@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Heart } from "lucide-react";
 import { useNowPlaying } from "@/hooks/use-now-playing";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -52,7 +52,7 @@ export function VibeCapture() {
       return;
     }
 
-    if (!nowPlaying?.isPlaying) {
+    if (!nowPlaying?.isPlaying || !nowPlaying?.track) {
       toast({
         title: "No music playing",
         description: "Start playing music on Spotify first",
@@ -100,23 +100,24 @@ export function VibeCapture() {
         </div>
 
         <div>
-          <label className="block text-sm text-text-secondary mb-2">
+          <label className="block text-sm text-text-secondary mb-3">
             Add a note (optional)
           </label>
-          <Textarea
-            value={note}
-            onChange={(e) => setNote(e.target.value.slice(0, 80))}
-            placeholder="What's this vibe about? (max 80 characters)"
-            maxLength={80}
-            rows={3}
-            className="bg-dark-elevated border-dark-elevated text-text-primary placeholder-text-secondary focus:ring-spotify focus:border-transparent resize-none"
-            data-testid="textarea-note"
-          />
+          <div className="relative">
+            <Input
+              value={note}
+              onChange={(e) => setNote(e.target.value.slice(0, 80))}
+              placeholder="What's this vibe about?"
+              maxLength={80}
+              className="h-12 px-4 bg-dark-elevated border-0 rounded-full text-text-primary placeholder-text-secondary/70 focus:ring-2 focus:ring-white/10 focus:bg-dark-elevated transition-all duration-200 text-sm"
+              data-testid="input-note"
+            />
+          </div>
           <div className="flex justify-between items-center mt-2">
-            <span className="text-xs text-text-secondary">
+            <span className="text-xs text-text-secondary/70">
               Express your moment in words
             </span>
-            <span className="text-xs text-text-secondary" data-testid="text-character-count">
+            <span className="text-xs text-text-secondary/70" data-testid="text-character-count">
               {note.length}/80
             </span>
           </div>
