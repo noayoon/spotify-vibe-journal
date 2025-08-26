@@ -100,7 +100,7 @@ export function VibeCapture() {
         </div>
 
         <div>
-          <label className="block text-sm text-text-secondary mb-3">
+          <label className="block text-sm text-text-secondary mb-3 font-normal">
             Add a note (optional)
           </label>
           <div className="relative">
@@ -109,15 +109,15 @@ export function VibeCapture() {
               onChange={(e) => setNote(e.target.value.slice(0, 80))}
               placeholder="What's this vibe about?"
               maxLength={80}
-              className="h-12 px-4 bg-dark-elevated border-0 rounded-full text-text-primary placeholder-[hsl(0_0%_70%)] focus:ring-2 focus:ring-white/10 focus:bg-dark-elevated transition-all duration-200 text-sm"
+              className="h-12 px-4 bg-dark-elevated border-0 rounded-full text-text-primary placeholder-[hsl(0_0%_70%)] focus:ring-2 focus:ring-white/10 focus:bg-dark-elevated transition-all duration-200 text-sm font-normal"
               data-testid="input-note"
             />
           </div>
           <div className="flex justify-between items-center mt-2">
-            <span className="text-xs text-text-secondary">
+            <span className="text-sm text-text-secondary font-normal">
               Express your moment in words
             </span>
-            <span className="text-xs text-text-secondary" data-testid="text-character-count">
+            <span className="text-sm text-text-secondary font-normal" data-testid="text-character-count">
               {note.length}/80
             </span>
           </div>
