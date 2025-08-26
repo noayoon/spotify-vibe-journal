@@ -109,15 +109,15 @@ export function VibeCapture() {
               onChange={(e) => setNote(e.target.value.slice(0, 80))}
               placeholder="What's this vibe about?"
               maxLength={80}
-              className="h-12 px-4 bg-dark-elevated border-0 rounded-full text-text-primary placeholder-gray-400 focus:ring-2 focus:ring-white/10 focus:bg-dark-elevated transition-all duration-200 text-sm"
+              className="h-12 px-4 bg-dark-elevated border-0 rounded-full text-text-primary placeholder-text-secondary focus:ring-2 focus:ring-white/10 focus:bg-dark-elevated transition-all duration-200 text-sm"
               data-testid="input-note"
             />
           </div>
           <div className="flex justify-between items-center mt-2">
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-text-secondary">
               Express your moment in words
             </span>
-            <span className="text-xs text-gray-400" data-testid="text-character-count">
+            <span className="text-xs text-text-secondary" data-testid="text-character-count">
               {note.length}/80
             </span>
           </div>
