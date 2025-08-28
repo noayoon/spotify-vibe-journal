@@ -51,10 +51,23 @@ export function VibeCapture() {
     },
   });
 
-  // Combine most used emojis with default options, avoiding duplicates
-  const emojiOptions = mostUsedEmojis.length > 0 
+  // Combine most used emojis with default options, ensuring selected emoji appears
+  let emojiOptions = mostUsedEmojis.length > 0 
     ? [...new Set([...mostUsedEmojis.map((item: any) => item.emoji), ...DEFAULT_EMOJI_OPTIONS])]
     : DEFAULT_EMOJI_OPTIONS;
+
+  // If a selected emoji from picker isn't in the quick options, add it to the front
+  if (selectedEmoji && !emojiOptions.includes(selectedEmoji)) {
+    emojiOptions = [selectedEmoji, ...emojiOptions.slice(0, 4)];
+  }
+
+  // Handler for emoji selection from picker
+  const handleEmojiSelect = (emoji: string) => {
+    setSelectedEmoji(emoji);
+    setShowEmojiPicker(false);
+    // Refresh most used emojis to potentially show the newly selected emoji
+    queryClient.invalidateQueries({ queryKey: ["/api/most-used-emojis"] });
+  };
 
   const handleCapture = () => {
     if (!selectedEmoji) {
@@ -172,7 +185,7 @@ export function VibeCapture() {
       <EmojiPicker
         isOpen={showEmojiPicker}
         onClose={() => setShowEmojiPicker(false)}
-        onEmojiSelect={setSelectedEmoji}
+        onEmojiSelect={handleEmojiSelect}
         selectedEmoji={selectedEmoji}
       />
     </Card>
