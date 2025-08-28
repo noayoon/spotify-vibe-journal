@@ -78,6 +78,14 @@ function WeeklyTimeline() {
 
   const { timeline, currentDay } = timelineData;
 
+  // Calculate exact current position including time of day
+  const now = new Date();
+  const currentHours = now.getHours();
+  const currentMinutes = now.getMinutes();
+  const currentTimePercent = (currentHours * 60 + currentMinutes) / (24 * 60);
+  const dayWidth = 100 / 7;
+  const exactCurrentPosition = (currentDay * dayWidth) + (currentTimePercent * dayWidth);
+
   return (
     <>
       <Card className="bg-dark-surface border-dark-elevated">
@@ -87,59 +95,107 @@ function WeeklyTimeline() {
             {/* Timeline line */}
             <div className="absolute top-6 left-4 right-4 h-0.5 bg-gray-600"></div>
             
-            {/* Current day indicator */}
+            {/* Current time indicator */}
             <div 
-              className="absolute top-5 w-2 h-2 bg-spotify rounded-full transition-all duration-300"
+              className="absolute top-5 w-2 h-2 bg-spotify rounded-full transition-all duration-300 shadow-sm"
               style={{ 
-                left: `${(currentDay / 6) * 100}%`,
+                left: `${Math.min(Math.max(exactCurrentPosition, 2), 98)}%`,
                 transform: 'translateX(-50%)'
               }}
             ></div>
+            
+            {/* Current time label */}
+            <div 
+              className="absolute top-1 text-xs text-spotify font-medium whitespace-nowrap"
+              style={{ 
+                left: `${Math.min(Math.max(exactCurrentPosition, 2), 98)}%`,
+                transform: 'translateX(-50%)'
+              }}
+            >
+              Now
+            </div>
 
-            {/* Day markers */}
-            <div className="flex justify-between items-center relative z-10">
-              {timeline.map((day, index) => (
-                <div 
-                  key={day.day}
-                  className="flex flex-col items-center cursor-pointer"
-                  onMouseEnter={(e) => handleDayHover(e, day)}
-                  onMouseLeave={handleDayLeave}
-                  data-testid={`timeline-day-${day.dayLabel}`}
-                >
-                  {/* Day label */}
-                  <div className="text-sm text-text-secondary mb-2 font-medium">
-                    {day.dayLabel}
-                  </div>
-                  
-                  {/* Day dot */}
-                  <div className={`w-3 h-3 rounded-full border-2 transition-all duration-200 ${
-                    day.entries.length > 0 
-                      ? 'bg-gray-300 border-gray-300 hover:bg-white hover:border-white' 
-                      : 'bg-transparent border-gray-600'
-                  }`}>
-                  </div>
-
-                  {/* Emoji stack for entries */}
-                  {day.entries.length > 0 && (
-                    <div className="flex -space-x-1 mt-2 max-w-[40px] overflow-hidden">
-                      {day.entries.slice(0, 3).map((entry, entryIndex) => (
-                        <div 
-                          key={entry.id}
-                          className="text-xs bg-dark-elevated rounded-full w-6 h-6 flex items-center justify-center border border-gray-700"
-                          style={{ zIndex: 3 - entryIndex }}
-                        >
-                          {entry.emoji}
-                        </div>
-                      ))}
-                      {day.entries.length > 3 && (
-                        <div className="text-xs bg-dark-elevated rounded-full w-6 h-6 flex items-center justify-center border border-gray-700 text-text-secondary">
-                          +{day.entries.length - 3}
-                        </div>
-                      )}
+            {/* Day markers and timeline container */}
+            <div className="relative">
+              {/* Day labels */}
+              <div className="flex justify-between items-center mb-8 relative z-20">
+                {timeline.map((day) => (
+                  <div key={day.day} className="flex flex-col items-center">
+                    <div className="text-sm text-text-secondary font-medium">
+                      {day.dayLabel}
                     </div>
-                  )}
-                </div>
-              ))}
+                    <div className={`w-3 h-3 rounded-full border-2 mt-2 transition-all duration-200 ${
+                      day.entries.length > 0 
+                        ? 'bg-gray-300 border-gray-300' 
+                        : 'bg-transparent border-gray-600'
+                    }`}>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Vibe entries positioned by time */}
+              <div className="absolute top-12 left-0 right-0 h-16">
+                {timeline.map((day, dayIndex) => 
+                  day.entries.map((entry) => {
+                    const entryTime = new Date(entry.createdAt);
+                    const hours = entryTime.getHours();
+                    const minutes = entryTime.getMinutes();
+                    
+                    // Calculate position within the day (0-100%)
+                    const timePercent = (hours * 60 + minutes) / (24 * 60) * 100;
+                    
+                    // Calculate horizontal position across the week
+                    const dayWidth = 100 / 7; // Each day takes 1/7 of the width
+                    const dayStart = dayIndex * dayWidth;
+                    const exactPosition = dayStart + (timePercent * dayWidth / 100);
+                    
+                    const timeString = entryTime.toLocaleTimeString([], { 
+                      hour: 'numeric', 
+                      minute: '2-digit',
+                      hour12: true 
+                    });
+
+                    return (
+                      <div
+                        key={entry.id}
+                        className="absolute cursor-pointer group"
+                        style={{
+                          left: `${exactPosition}%`,
+                          transform: 'translateX(-50%)',
+                          top: '0px'
+                        }}
+                        onMouseEnter={(e) => {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          setTooltip({
+                            x: rect.left + rect.width / 2,
+                            y: rect.top - 10,
+                            entries: [entry],
+                            day: `${['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day.day]} at ${timeString}`
+                          });
+                        }}
+                        onMouseLeave={handleDayLeave}
+                        data-testid={`vibe-entry-${entry.id}`}
+                      >
+                        <div className="relative">
+                          {/* Connecting line to timeline */}
+                          <div className="absolute top-0 left-1/2 w-px h-4 bg-gray-500 transform -translate-x-1/2"></div>
+                          
+                          {/* Emoji bubble */}
+                          <div className="bg-dark-elevated border border-gray-600 rounded-full w-8 h-8 flex items-center justify-center text-sm hover:border-gray-400 hover:bg-dark-surface transition-all duration-200 group-hover:scale-110 mt-4">
+                            {entry.emoji}
+                          </div>
+                          
+                          {/* Time label */}
+                          <div className="absolute top-14 left-1/2 transform -translate-x-1/2 text-xs text-text-secondary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            {timeString}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
         </CardContent>
@@ -156,32 +212,27 @@ function WeeklyTimeline() {
           }}
         >
           <div className="text-sm font-semibold text-text-primary mb-2">
-            {tooltip.day} ({tooltip.entries.length} vibe{tooltip.entries.length !== 1 ? 's' : ''})
+            {tooltip.day}
           </div>
-          <div className="space-y-2 max-h-40 overflow-y-auto">
-            {tooltip.entries.slice(0, 3).map((entry) => (
-              <div key={entry.id} className="flex items-center gap-2 text-xs">
-                <span className="text-sm">{entry.emoji}</span>
+          <div className="space-y-2 max-w-64">
+            {tooltip.entries.map((entry) => (
+              <div key={entry.id} className="flex items-start gap-3">
+                <span className="text-lg mt-0.5">{entry.emoji}</span>
                 <div className="flex-1 min-w-0">
-                  <div className="text-text-primary truncate font-medium">
+                  <div className="text-text-primary font-medium text-sm leading-tight mb-1">
                     {entry.trackName}
                   </div>
-                  <div className="text-text-secondary truncate">
-                    {entry.artistName}
+                  <div className="text-text-secondary text-xs mb-1">
+                    by {entry.artistName}
                   </div>
                   {entry.notes && (
-                    <div className="text-text-secondary truncate italic">
+                    <div className="text-text-secondary text-xs italic leading-relaxed">
                       "{entry.notes}"
                     </div>
                   )}
                 </div>
               </div>
             ))}
-            {tooltip.entries.length > 3 && (
-              <div className="text-xs text-text-secondary text-center pt-1 border-t border-gray-700">
-                +{tooltip.entries.length - 3} more vibes
-              </div>
-            )}
           </div>
         </div>
       )}
