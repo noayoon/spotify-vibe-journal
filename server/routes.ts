@@ -225,6 +225,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Weekly timeline data
+  app.get("/api/weekly-timeline", async (req, res) => {
+    const userId = (req.session as any)?.userId;
+    
+    if (!userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      // Get start and end of current week (Sunday to Saturday)
+      const now = new Date();
+      const startOfWeek = new Date(now);
+      startOfWeek.setDate(now.getDate() - now.getDay()); // Go to Sunday
+      startOfWeek.setHours(0, 0, 0, 0);
+
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6); // Go to Saturday
+      endOfWeek.setHours(23, 59, 59, 999);
+
+      const allEntries = await storage.getVibeEntriesByDateRange(userId, startOfWeek, endOfWeek);
+      
+      // Group entries by day of week
+      const timeline = Array(7).fill(null).map((_, index) => {
+        const dayEntries = allEntries.filter(entry => {
+          const entryDate = new Date(entry.createdAt);
+          return entryDate.getDay() === index;
+        });
+        
+        return {
+          day: index, // 0 = Sunday, 1 = Monday, etc.
+          dayLabel: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][index],
+          entries: dayEntries
+        };
+      });
+
+      // Calculate current position in week (0-6)
+      const currentDayOfWeek = now.getDay();
+      
+      res.json({
+        timeline,
+        currentDay: currentDayOfWeek,
+        weekStart: startOfWeek.toISOString(),
+        weekEnd: endOfWeek.toISOString()
+      });
+    } catch (error) {
+      console.error('Weekly timeline error:', error);
+      res.status(500).json({ error: 'Failed to get weekly timeline' });
+    }
+  });
+
   // Vibe entries
   app.get("/api/vibe-entries", async (req, res) => {
     const userId = (req.session as any)?.userId;

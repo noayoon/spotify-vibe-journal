@@ -13,6 +13,7 @@ export interface IStorage {
   getVibeEntries(userId: string, limit?: number, offset?: number): Promise<VibeEntry[]>;
   getVibeEntriesByEmoji(userId: string, emoji: string): Promise<VibeEntry[]>;
   getVibeEntriesByArtist(userId: string, artist: string): Promise<VibeEntry[]>;
+  getVibeEntriesByDateRange(userId: string, startDate: Date, endDate: Date): Promise<VibeEntry[]>;
   createVibeEntry(entry: InsertVibeEntry): Promise<VibeEntry>;
   deleteVibeEntry(id: string, userId: string): Promise<boolean>;
   updateVibeEntry(id: string, userId: string, updates: Partial<VibeEntry>): Promise<VibeEntry | undefined>;
@@ -85,6 +86,18 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(vibeEntries)
       .where(and(eq(vibeEntries.userId, userId), eq(vibeEntries.artistName, artist)))
+      .orderBy(desc(vibeEntries.createdAt));
+  }
+
+  async getVibeEntriesByDateRange(userId: string, startDate: Date, endDate: Date): Promise<VibeEntry[]> {
+    return await db
+      .select()
+      .from(vibeEntries)
+      .where(and(
+        eq(vibeEntries.userId, userId),
+        gte(vibeEntries.createdAt, startDate),
+        lte(vibeEntries.createdAt, endDate)
+      ))
       .orderBy(desc(vibeEntries.createdAt));
   }
 
