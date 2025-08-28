@@ -15,49 +15,68 @@ export function WeeklyRecap() {
   });
 
   return (
-    <Card className="bg-gradient-to-r from-vibe-orange to-spotify border-none">
-      <CardHeader>
-        <CardTitle className="text-lg font-bold text-dark-bg flex items-center justify-between">
-          This Week's Vibe
-          <BarChart3 className="text-xl" />
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center text-dark-bg">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-text-primary">This Week's Vibe</h2>
+        <p className="text-sm text-text-secondary">Only visible to you</p>
+      </div>
+
+      {/* Main Stats Grid - Spotify Style */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Top Mood - Large Circular Icon */}
+        <Card className="bg-dark-surface border-dark-elevated hover:bg-dark-elevated transition-colors">
+          <CardContent className="p-6 text-center">
             {isLoading ? (
-              <Skeleton className="h-8 w-8 mx-auto mb-1 bg-dark-bg/20" />
+              <Skeleton className="w-20 h-20 mx-auto mb-4 rounded-full bg-dark-elevated" />
             ) : (
-              <div className="text-2xl mb-1" data-testid="text-top-mood">
-                {stats?.topMood || "🎵"}
+              <div className="w-20 h-20 mx-auto mb-4 bg-gray-800 rounded-full flex items-center justify-center">
+                <span className="text-4xl" data-testid="text-top-mood">
+                  {stats?.topMood || "🎵"}
+                </span>
               </div>
             )}
-            <p className="text-sm font-medium">Most Felt</p>
-          </div>
-          
-          <div className="text-center text-dark-bg">
+            <h3 className="text-lg font-semibold text-text-primary mb-1">Top Mood</h3>
+            <p className="text-sm text-text-secondary">your most felt emotion</p>
+          </CardContent>
+        </Card>
+
+        {/* Top Artist - Profile Picture Style */}
+        <Card className="bg-dark-surface border-dark-elevated hover:bg-dark-elevated transition-colors">
+          <CardContent className="p-6 text-center">
             {isLoading ? (
-              <Skeleton className="h-4 w-20 mx-auto mb-1 bg-dark-bg/20" />
+              <Skeleton className="w-20 h-20 mx-auto mb-4 rounded-full bg-dark-elevated" />
             ) : (
-              <div className="text-sm font-semibold mb-1 truncate" data-testid="text-top-artist">
-                {stats?.topArtist || "N/A"}
+              <div className="w-20 h-20 mx-auto mb-4 bg-gray-800 rounded-full flex items-center justify-center border-2 border-gray-700">
+                <span className="text-lg font-bold text-text-primary">
+                  {stats?.topArtist ? stats.topArtist.charAt(0).toUpperCase() : "?"}
+                </span>
               </div>
             )}
-            <p className="text-sm font-medium">Top Artist</p>
-          </div>
-          
-          <div className="text-center text-dark-bg">
+            <h3 className="text-lg font-semibold text-text-primary mb-1">Top Artist</h3>
+            <p className="text-sm text-text-secondary truncate" data-testid="text-top-artist">
+              {stats?.topArtist || "No data yet"}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Total Vibes */}
+        <Card className="bg-dark-surface border-dark-elevated hover:bg-dark-elevated transition-colors">
+          <CardContent className="p-6 text-center">
             {isLoading ? (
-              <Skeleton className="h-6 w-8 mx-auto mb-1 bg-dark-bg/20" />
+              <Skeleton className="w-20 h-20 mx-auto mb-4 rounded-full bg-dark-elevated" />
             ) : (
-              <div className="text-xl font-bold mb-1" data-testid="text-total-entries">
-                {stats?.totalEntries || 0}
+              <div className="w-20 h-20 mx-auto mb-4 bg-spotify rounded-full flex items-center justify-center">
+                <span className="text-2xl font-bold text-dark-bg" data-testid="text-total-entries">
+                  {stats?.totalEntries || 0}
+                </span>
               </div>
             )}
-            <p className="text-sm font-medium">Vibes Logged</p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+            <h3 className="text-lg font-semibold text-text-primary mb-1">Vibes Logged</h3>
+            <p className="text-sm text-text-secondary">tracks captured this week</p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
