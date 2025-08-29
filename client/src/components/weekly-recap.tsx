@@ -112,7 +112,7 @@ function WeeklyTimeline() {
             
             {/* Current time indicator */}
             <div 
-              className="absolute top-5 w-2 h-2 bg-spotify rounded-full transition-all duration-300 shadow-sm"
+              className="absolute top-5 w-2 h-2 bg-blue-400 rounded-full transition-all duration-300 shadow-sm"
               style={{ 
                 left: `${Math.min(Math.max(exactCurrentPosition, 2), 98)}%`,
                 transform: 'translateX(-50%)'
