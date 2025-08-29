@@ -322,23 +322,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get user's current streak
-  app.get("/api/streak", async (req, res) => {
-    const userId = (req.session as any)?.userId;
-    
-    if (!userId) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
-
-    try {
-      const streak = await storage.calculateAndUpdateStreak(userId);
-      res.json(streak);
-    } catch (error) {
-      console.error('Get streak error:', error);
-      res.status(500).json({ error: 'Failed to get streak' });
-    }
-  });
-
   app.post("/api/vibe-entries", async (req, res) => {
     const userId = (req.session as any)?.userId;
     
@@ -356,9 +339,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Track emoji usage
       await storage.trackEmojiUsage(userId, entryData.emoji);
-      
-      // Calculate and update streak
-      await storage.calculateAndUpdateStreak(userId);
       
       // Update weekly stats
       await updateWeeklyStats(userId);
@@ -552,7 +532,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     weekEnd.setDate(weekEnd.getDate() + 6);
     weekEnd.setHours(23, 59, 59, 999);
 
-    const weekEntries = await storage.getVibeEntriesByDateRange(userId, weekStart, weekEnd);
+    const entries = await storage.getVibeEntries(userId, 1000, 0);
+    const weekEntries = entries.filter(entry => 
+      new Date(entry.createdAt) >= weekStart && new Date(entry.createdAt) <= weekEnd
+    );
 
     // Calculate top mood
     const moodCounts: { [key: string]: number } = {};

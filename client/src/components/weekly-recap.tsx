@@ -326,10 +326,6 @@ export function WeeklyRecap() {
     queryKey: ["/api/weekly-stats"],
   });
 
-  const { data: streak, isLoading: streakLoading } = useQuery<{currentStreak: number; longestStreak: number}>({
-    queryKey: ["/api/streak"],
-  });
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -339,7 +335,7 @@ export function WeeklyRecap() {
       </div>
 
       {/* Main Stats Grid - Spotify Style */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Top Mood - Large Circular Icon */}
         <Card className="bg-dark-surface border-dark-elevated hover:bg-dark-elevated transition-colors">
           <CardContent className="p-6 text-center">
@@ -390,25 +386,6 @@ export function WeeklyRecap() {
             )}
             <h3 className="text-lg font-semibold text-text-primary mb-1">Vibes Logged</h3>
             <p className="text-sm text-text-secondary">tracks captured this week</p>
-          </CardContent>
-        </Card>
-
-        {/* Current Streak */}
-        <Card className="bg-dark-surface border-dark-elevated hover:bg-dark-elevated transition-colors">
-          <CardContent className="p-6 text-center">
-            {streakLoading ? (
-              <Skeleton className="w-20 h-20 mx-auto mb-4 rounded-full bg-dark-elevated" />
-            ) : (
-              <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
-                <span className="text-2xl font-bold text-white" data-testid="text-current-streak">
-                  {streak?.currentStreak || 0}
-                </span>
-              </div>
-            )}
-            <h3 className="text-lg font-semibold text-text-primary mb-1">Current Streak</h3>
-            <p className="text-sm text-text-secondary">
-              {streak?.currentStreak === 1 ? "day in a row" : "days in a row"}
-            </p>
           </CardContent>
         </Card>
       </div>

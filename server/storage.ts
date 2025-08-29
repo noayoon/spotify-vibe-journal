@@ -33,10 +33,6 @@ export interface IStorage {
   // Emoji usage operations
   trackEmojiUsage(userId: string, emoji: string): Promise<void>;
   getMostUsedEmojis(userId: string, limit?: number): Promise<EmojiUsage[]>;
-  
-  // Streak operations
-  calculateAndUpdateStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number }>;
-  getDaysWithVibes(userId: string, days: number): Promise<Date[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -262,108 +258,6 @@ export class DatabaseStorage implements IStorage {
       .where(eq(emojiUsage.userId, userId))
       .orderBy(desc(emojiUsage.usageCount), desc(emojiUsage.lastUsed))
       .limit(limit);
-  }
-
-  async getDaysWithVibes(userId: string, days: number): Promise<Date[]> {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-    
-    const entries = await db
-      .select({
-        createdAt: vibeEntries.createdAt
-      })
-      .from(vibeEntries)
-      .where(and(
-        eq(vibeEntries.userId, userId),
-        gte(vibeEntries.createdAt, startDate)
-      ))
-      .orderBy(desc(vibeEntries.createdAt));
-
-    // Get unique days (ignore time)
-    const uniqueDays = new Set<string>();
-    entries.forEach(entry => {
-      const dayKey = entry.createdAt.toDateString();
-      uniqueDays.add(dayKey);
-    });
-
-    return Array.from(uniqueDays).map(dayStr => new Date(dayStr)).sort((a, b) => b.getTime() - a.getTime());
-  }
-
-  async calculateAndUpdateStreak(userId: string): Promise<{ currentStreak: number; longestStreak: number }> {
-    // Get days with vibes from the last 365 days
-    const daysWithVibes = await this.getDaysWithVibes(userId, 365);
-    
-    if (daysWithVibes.length === 0) {
-      return { currentStreak: 0, longestStreak: 0 };
-    }
-
-    // Calculate current streak
-    let currentStreak = 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    // Check if user has vibe today or yesterday (to maintain streak)
-    const latestVibeDay = new Date(daysWithVibes[0]);
-    latestVibeDay.setHours(0, 0, 0, 0);
-    
-    if (latestVibeDay.getTime() === today.getTime() || latestVibeDay.getTime() === yesterday.getTime()) {
-      // Count consecutive days backwards from latest vibe
-      let checkDate = new Date(latestVibeDay);
-      currentStreak = 1;
-      
-      for (let i = 1; i < daysWithVibes.length; i++) {
-        checkDate.setDate(checkDate.getDate() - 1);
-        const vibeDay = new Date(daysWithVibes[i]);
-        vibeDay.setHours(0, 0, 0, 0);
-        
-        if (vibeDay.getTime() === checkDate.getTime()) {
-          currentStreak++;
-        } else {
-          break;
-        }
-      }
-    }
-
-    // Calculate longest streak
-    let longestStreak = 0;
-    let tempStreak = 1;
-    
-    for (let i = 1; i < daysWithVibes.length; i++) {
-      const currentDay = new Date(daysWithVibes[i - 1]);
-      const nextDay = new Date(daysWithVibes[i]);
-      currentDay.setHours(0, 0, 0, 0);
-      nextDay.setHours(0, 0, 0, 0);
-      
-      // Check if days are consecutive
-      const expectedPrevDay = new Date(nextDay);
-      expectedPrevDay.setDate(expectedPrevDay.getDate() + 1);
-      
-      if (currentDay.getTime() === expectedPrevDay.getTime()) {
-        tempStreak++;
-      } else {
-        longestStreak = Math.max(longestStreak, tempStreak);
-        tempStreak = 1;
-      }
-    }
-    longestStreak = Math.max(longestStreak, tempStreak);
-
-    // Update the current week's stats with the new streak info
-    const currentWeekStats = await this.getCurrentWeekStats(userId);
-    if (currentWeekStats) {
-      await db
-        .update(weeklyStats)
-        .set({
-          currentStreak,
-          longestStreak,
-          lastStreakDate: new Date()
-        })
-        .where(eq(weeklyStats.id, currentWeekStats.id));
-    }
-
-    return { currentStreak, longestStreak };
   }
 }
 
