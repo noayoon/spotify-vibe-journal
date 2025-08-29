@@ -256,9 +256,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return {
           day: index, // 0 = Sunday, 1 = Monday, etc.
           dayLabel: ['S', 'M', 'T', 'W', 'T', 'F', 'S'][index],
-          entries: dayEntries
+          entries: dayEntries,
+          hasEntries: dayEntries.length > 0
         };
       });
+
+      // Calculate streak information
+      const calculateStreak = (timeline: any[]) => {
+        const daysWithVibes = timeline.map(day => day.hasEntries);
+        let currentStreak = 0;
+        let longestStreak = 0;
+        
+        // Find current streak (from today backwards)
+        const today = now.getDay();
+        for (let i = today; i >= 0; i--) {
+          if (daysWithVibes[i]) {
+            currentStreak++;
+          } else {
+            break;
+          }
+        }
+        
+        // Find longest streak in the week
+        let tempStreak = 0;
+        for (let i = 0; i < 7; i++) {
+          if (daysWithVibes[i]) {
+            tempStreak++;
+            longestStreak = Math.max(longestStreak, tempStreak);
+          } else {
+            tempStreak = 0;
+          }
+        }
+        
+        return { currentStreak, longestStreak };
+      };
+
+      const streakInfo = calculateStreak(timeline);
 
       // Calculate current position in week (0-6)
       const currentDayOfWeek = now.getDay();
@@ -267,7 +300,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timeline,
         currentDay: currentDayOfWeek,
         weekStart: startOfWeek.toISOString(),
-        weekEnd: endOfWeek.toISOString()
+        weekEnd: endOfWeek.toISOString(),
+        streak: streakInfo
       });
     } catch (error) {
       console.error('Weekly timeline error:', error);
