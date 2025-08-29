@@ -112,10 +112,11 @@ function WeeklyTimeline() {
             
             {/* Current time indicator */}
             <div 
-              className="absolute top-5.5 w-2 h-2 bg-spotify rounded-full transition-all duration-300 shadow-sm"
+              className="absolute w-2 h-2 bg-spotify rounded-full transition-all duration-300 shadow-sm"
               style={{ 
                 left: `${Math.min(Math.max(exactCurrentPosition, 2), 98)}%`,
-                transform: 'translateX(-50%)'
+                top: '23px', // Position to align with the timeline line
+                transform: 'translateX(-50%) translateY(-50%)'
               }}
             ></div>
 
