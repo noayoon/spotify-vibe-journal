@@ -6,17 +6,8 @@ import { formatDistanceToNow } from "date-fns";
 import { Music } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShareDialog } from "@/components/share-dialog";
-
-interface VibeEntry {
-  id: string;
-  emoji: string;
-  note: string | null;
-  trackName: string;
-  artistName: string;
-  albumName: string;
-  albumArt: string | null;
-  createdAt: string;
-}
+import { DeleteVibeButton } from "./delete-vibe-button";
+import type { VibeEntry } from "@shared/schema";
 
 interface VibeTimelineProps {
   limit?: number;
@@ -161,8 +152,9 @@ export function VibeTimeline({ limit = 20, showLoadMore = false, filter = "all",
                   <p className="text-xs text-text-secondary" data-testid="text-entry-timestamp">
                     {formatDistanceToNow(new Date(entry.createdAt), { addSuffix: true })}
                   </p>
-                  <div className="mt-1">
+                  <div className="mt-1 flex gap-2">
                     <ShareDialog vibeEntry={entry} />
+                    <DeleteVibeButton vibeId={entry.id} />
                   </div>
                 </div>
               </div>
