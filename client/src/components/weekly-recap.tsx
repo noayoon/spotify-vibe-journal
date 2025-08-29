@@ -135,7 +135,7 @@ function WeeklyTimeline() {
               </div>
 
               {/* Vibe entries positioned by time */}
-              <div className="absolute top-12 left-0 right-0 h-24 overflow-visible">
+              <div className="absolute top-12 left-0 right-0 h-16 overflow-visible">
                 {(() => {
                   // Flatten all entries with their positions and sort by time
                   const allEntries = timeline.flatMap((day, dayIndex) => 
@@ -174,17 +174,20 @@ function WeeklyTimeline() {
                   // Calculate vertical offsets for overlapping entries
                   const positionedEntries = allEntries.map((entry, index) => {
                     let verticalOffset = 0;
+                    let stackLevel = 0;
                     
                     // Check for overlaps with previous entries
                     for (let i = 0; i < index; i++) {
                       const prevEntry = allEntries[i];
                       const horizontalDistance = Math.abs(entry.exactPosition - prevEntry.exactPosition);
                       
-                      // If entries are close horizontally (within 3% of total width), stack them vertically
-                      if (horizontalDistance < 3) {
-                        verticalOffset = Math.max(verticalOffset, (i + 1) * 36); // 36px = icon height + margin
+                      // If entries are close horizontally (within 2.5% of total width), stack them vertically
+                      if (horizontalDistance < 2.5) {
+                        stackLevel++;
                       }
                     }
+                    
+                    verticalOffset = stackLevel * 10; // 10px offset per stack level
                     
                     return { ...entry, verticalOffset };
                   });
