@@ -123,36 +123,19 @@ function WeeklyTimeline() {
             <div className="relative">
               {/* Day labels */}
               <div className="flex justify-between items-center mb-8 relative z-20">
-                {timeline.map((day, dayIndex) => {
-                  // Check if this day is part of the current streak
-                  const isPartOfStreak = streak && streak.currentStreak > 1 && 
-                    dayIndex <= currentDay && 
-                    dayIndex >= (currentDay - streak.currentStreak + 1) &&
-                    day.entries.length > 0;
-                  
-                  return (
-                    <div key={day.day} className="flex flex-col items-center">
-                      <div className="text-sm text-text-secondary font-medium">
-                        {day.dayLabel}
-                      </div>
-                      <div className="relative mt-2">
-                        {/* Main day indicator */}
-                        <div className={`w-3 h-3 rounded-full border-2 transition-all duration-200 ${
-                          day.entries.length > 0 
-                            ? 'bg-gray-300 border-gray-300' 
-                            : 'bg-transparent border-gray-600'
-                        }`}>
-                        </div>
-                        {/* Fire indicator for streak days */}
-                        {isPartOfStreak && (
-                          <div className="absolute -top-1 -right-1 text-xs">
-                            🔥
-                          </div>
-                        )}
-                      </div>
+                {timeline.map((day) => (
+                  <div key={day.day} className="flex flex-col items-center">
+                    <div className="text-sm text-text-secondary font-medium">
+                      {day.dayLabel}
                     </div>
-                  );
-                })}
+                    <div className={`w-3 h-3 rounded-full border-2 mt-2 transition-all duration-200 ${
+                      day.entries.length > 0 
+                        ? 'bg-gray-300 border-gray-300' 
+                        : 'bg-transparent border-gray-600'
+                    }`}>
+                    </div>
+                  </div>
+                ))}
               </div>
 
               {/* Vibe entries positioned by time */}
