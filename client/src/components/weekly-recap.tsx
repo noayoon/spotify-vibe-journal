@@ -96,30 +96,12 @@ function WeeklyTimeline() {
             {/* Timeline line */}
             <div className="absolute top-6 left-4 right-4 h-0.5 bg-gray-600"></div>
             
-            {/* Current time indicator */}
-            <div 
-              className="absolute top-5 w-2 h-2 bg-spotify rounded-full transition-all duration-300 shadow-sm"
-              style={{ 
-                left: `${Math.min(Math.max(exactCurrentPosition, 2), 98)}%`,
-                transform: 'translateX(-50%)'
-              }}
-            ></div>
-            
-            {/* Current time label */}
-            <div 
-              className="absolute -top-6 text-xs text-spotify font-medium whitespace-nowrap"
-              style={{ 
-                left: `${Math.min(Math.max(exactCurrentPosition, 2), 98)}%`,
-                transform: 'translateX(-50%)'
-              }}
-            >
-              Now
-            </div>
+
 
             {/* Day markers and timeline container */}
             <div className="relative">
               {/* Day labels */}
-              <div className="flex justify-between items-center mb-8 relative z-20 mt-4">
+              <div className="flex justify-between items-center mb-8 relative z-20">
                 {timeline.map((day) => (
                   <div key={day.day} className="flex flex-col items-center">
                     <div className="text-sm text-text-secondary font-medium">
