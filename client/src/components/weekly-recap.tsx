@@ -115,7 +115,7 @@ function WeeklyTimeline() {
               className="absolute w-2 h-2 bg-spotify rounded-full transition-all duration-300 shadow-sm"
               style={{ 
                 left: `${Math.min(Math.max(exactCurrentPosition, 2), 98)}%`,
-                top: '23px', // Position to align with the timeline line
+                top: '24px', // Exactly center on the timeline line (top-6 = 24px)
                 transform: 'translateX(-50%) translateY(-50%)'
               }}
             ></div>
@@ -136,7 +136,7 @@ function WeeklyTimeline() {
                       <div className="text-sm text-text-secondary font-medium">
                         {day.dayLabel}
                       </div>
-                      <div className={`w-3 h-3 rounded-full border-2 mt-2 transition-all duration-200 ${
+                      <div className={`w-3 h-3 rounded-full border-2 mt-4 transition-all duration-200 ${
                         day.entries.length > 0 
                           ? isPartOfStreak 
                             ? 'bg-spotify border-spotify' 
