@@ -135,63 +135,95 @@ function WeeklyTimeline() {
               </div>
 
               {/* Vibe entries positioned by time */}
-              <div className="absolute top-12 left-0 right-0 h-20 overflow-hidden">
-                {timeline.map((day, dayIndex) => 
-                  day.entries.map((entry) => {
-                    const entryTime = new Date(entry.createdAt);
-                    const hours = entryTime.getHours();
-                    const minutes = entryTime.getMinutes();
-                    
-                    // Calculate position within the day (0-100%)
-                    const timePercent = (hours * 60 + minutes) / (24 * 60) * 100;
-                    
-                    // Calculate horizontal position across the week
-                    const dayWidth = 100 / 7; // Each day takes 1/7 of the width
-                    const dayStart = dayIndex * dayWidth;
-                    const exactPosition = dayStart + (timePercent * dayWidth / 100);
-                    
-                    const timeString = entryTime.toLocaleTimeString([], { 
-                      hour: 'numeric', 
-                      minute: '2-digit',
-                      hour12: true 
-                    });
+              <div className="absolute top-12 left-0 right-0 h-24 overflow-visible">
+                {(() => {
+                  // Flatten all entries with their positions and sort by time
+                  const allEntries = timeline.flatMap((day, dayIndex) => 
+                    day.entries.map((entry) => {
+                      const entryTime = new Date(entry.createdAt);
+                      const hours = entryTime.getHours();
+                      const minutes = entryTime.getMinutes();
+                      
+                      // Calculate position within the day (0-100%)
+                      const timePercent = (hours * 60 + minutes) / (24 * 60) * 100;
+                      
+                      // Calculate horizontal position across the week
+                      const dayWidth = 100 / 7;
+                      const dayStart = dayIndex * dayWidth;
+                      const exactPosition = dayStart + (timePercent * dayWidth / 100);
+                      
+                      const timeString = entryTime.toLocaleTimeString([], { 
+                        hour: 'numeric', 
+                        minute: '2-digit',
+                        hour12: true 
+                      });
 
-                    return (
-                      <div
-                        key={entry.id}
-                        className="absolute cursor-pointer group"
-                        style={{
-                          left: `${exactPosition}%`,
-                          transform: 'translateX(-50%)',
-                          top: '0px'
-                        }}
-                        onMouseEnter={(e) => {
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          setTooltip({
-                            x: rect.left + rect.width / 2,
-                            y: rect.top - 10,
-                            entries: [entry],
-                            day: `${['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day.day]} at ${timeString}`
-                          });
-                        }}
-                        onMouseLeave={handleDayLeave}
-                        data-testid={`vibe-entry-${entry.id}`}
-                      >
-                        <div className="relative">
-                          {/* Emoji bubble */}
-                          <div className="bg-dark-elevated border border-gray-600 rounded-full w-8 h-8 flex items-center justify-center text-sm hover:border-gray-400 hover:bg-dark-surface transition-all duration-200 group-hover:scale-110">
-                            {entry.emoji}
-                          </div>
-                          
-                          {/* Time label */}
-                          <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-xs text-text-secondary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                            {timeString}
-                          </div>
+                      return {
+                        ...entry,
+                        exactPosition,
+                        timeString,
+                        dayIndex,
+                        dayLabel: day.dayLabel
+                      };
+                    })
+                  );
+
+                  // Sort by position to detect overlaps
+                  allEntries.sort((a, b) => a.exactPosition - b.exactPosition);
+
+                  // Calculate vertical offsets for overlapping entries
+                  const positionedEntries = allEntries.map((entry, index) => {
+                    let verticalOffset = 0;
+                    
+                    // Check for overlaps with previous entries
+                    for (let i = 0; i < index; i++) {
+                      const prevEntry = allEntries[i];
+                      const horizontalDistance = Math.abs(entry.exactPosition - prevEntry.exactPosition);
+                      
+                      // If entries are close horizontally (within 3% of total width), stack them vertically
+                      if (horizontalDistance < 3) {
+                        verticalOffset = Math.max(verticalOffset, (i + 1) * 36); // 36px = icon height + margin
+                      }
+                    }
+                    
+                    return { ...entry, verticalOffset };
+                  });
+
+                  return positionedEntries.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="absolute cursor-pointer group"
+                      style={{
+                        left: `${entry.exactPosition}%`,
+                        transform: 'translateX(-50%)',
+                        top: `${entry.verticalOffset}px`
+                      }}
+                      onMouseEnter={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setTooltip({
+                          x: rect.left + rect.width / 2,
+                          y: rect.top - 10,
+                          entries: [entry],
+                          day: `${['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][entry.dayIndex]} at ${entry.timeString}`
+                        });
+                      }}
+                      onMouseLeave={handleDayLeave}
+                      data-testid={`vibe-entry-${entry.id}`}
+                    >
+                      <div className="relative">
+                        {/* Emoji bubble */}
+                        <div className="bg-dark-elevated border border-gray-600 rounded-full w-8 h-8 flex items-center justify-center text-sm hover:border-gray-400 hover:bg-dark-surface transition-all duration-200 group-hover:scale-110">
+                          {entry.emoji}
+                        </div>
+                        
+                        {/* Time label */}
+                        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-xs text-text-secondary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                          {entry.timeString}
                         </div>
                       </div>
-                    );
-                  })
-                )}
+                    </div>
+                  ));
+                })()}
               </div>
             </div>
           </div>
