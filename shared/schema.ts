@@ -38,6 +38,7 @@ export const weeklyStats = pgTable("weekly_stats", {
   totalEntries: integer("total_entries").notNull().default(0),
   topMood: text("top_mood"),
   topArtist: text("top_artist"),
+  topArtistImage: text("top_artist_image"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

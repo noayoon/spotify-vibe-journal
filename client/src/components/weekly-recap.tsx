@@ -8,6 +8,7 @@ interface WeeklyStats {
   totalEntries: number;
   topMood: string | null;
   topArtist: string | null;
+  topArtistImage: string | null;
 }
 
 interface VibeEntry {
@@ -359,10 +360,30 @@ export function WeeklyRecap() {
             {isLoading ? (
               <Skeleton className="w-20 h-20 mx-auto mb-4 rounded-full bg-dark-elevated" />
             ) : (
-              <div className="w-20 h-20 mx-auto mb-4 bg-gray-800 rounded-full flex items-center justify-center border-2 border-gray-700">
-                <span className="text-lg font-bold text-text-primary">
-                  {stats?.topArtist ? stats.topArtist.charAt(0).toUpperCase() : "?"}
-                </span>
+              <div className="w-20 h-20 mx-auto mb-4 relative">
+                {stats?.topArtistImage ? (
+                  <img 
+                    src={stats.topArtistImage} 
+                    alt={stats.topArtist || "Top Artist"}
+                    className="w-full h-full object-cover rounded-full border-2 border-gray-700"
+                    onError={(e) => {
+                      // Fallback to initial letter if image fails to load
+                      e.currentTarget.style.display = 'none';
+                      const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div 
+                  className={`w-full h-full bg-gray-800 rounded-full flex items-center justify-center border-2 border-gray-700 ${
+                    stats?.topArtistImage ? 'hidden' : 'flex'
+                  }`}
+                  style={{ display: stats?.topArtistImage ? 'none' : 'flex' }}
+                >
+                  <span className="text-lg font-bold text-text-primary">
+                    {stats?.topArtist ? stats.topArtist.charAt(0).toUpperCase() : "?"}
+                  </span>
+                </div>
               </div>
             )}
             <h3 className="text-lg font-semibold text-text-primary mb-1">Top Artist</h3>

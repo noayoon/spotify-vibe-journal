@@ -553,13 +553,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ? Object.keys(artistCounts).reduce((a, b) => artistCounts[a] > artistCounts[b] ? a : b)
       : null;
 
+    // Fetch top artist image from Spotify if we have a top artist
+    let topArtistImage: string | null = null;
+    if (topArtist) {
+      try {
+        const user = await storage.getUser(userId);
+        if (user && user.accessToken) {
+          const searchResponse = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(topArtist)}&type=artist&limit=1`, {
+            headers: {
+              'Authorization': `Bearer ${user.accessToken}`
+            }
+          });
+          
+          if (searchResponse.ok) {
+            const searchData = await searchResponse.json();
+            if (searchData.artists?.items?.length > 0) {
+              const artist = searchData.artists.items[0];
+              topArtistImage = artist.images?.[0]?.url || null;
+            }
+          }
+        }
+      } catch (error) {
+        console.log('Failed to fetch artist image:', error);
+        // Continue without artist image - it's not critical
+      }
+    }
+
     await storage.createOrUpdateWeeklyStats({
       userId,
       weekStart,
       weekEnd,
       totalEntries: weekEntries.length,
       topMood,
-      topArtist
+      topArtist,
+      topArtistImage
     });
   }
 
