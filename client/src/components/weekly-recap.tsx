@@ -96,7 +96,14 @@ function WeeklyTimeline() {
             {/* Timeline line */}
             <div className="absolute top-6 left-4 right-4 h-0.5 bg-gray-600"></div>
             
-
+            {/* Current time indicator */}
+            <div 
+              className="absolute top-5 w-2 h-2 bg-spotify rounded-full transition-all duration-300 shadow-sm"
+              style={{ 
+                left: `${Math.min(Math.max(exactCurrentPosition, 2), 98)}%`,
+                transform: 'translateX(-50%)'
+              }}
+            ></div>
 
             {/* Day markers and timeline container */}
             <div className="relative">
