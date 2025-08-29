@@ -178,16 +178,13 @@ function WeeklyTimeline() {
                         data-testid={`vibe-entry-${entry.id}`}
                       >
                         <div className="relative">
-                          {/* Connecting line to timeline */}
-                          <div className="absolute top-0 left-1/2 w-px h-4 bg-gray-500 transform -translate-x-1/2"></div>
-                          
                           {/* Emoji bubble */}
-                          <div className="bg-dark-elevated rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-dark-surface transition-all duration-200 group-hover:scale-110 mt-4">
+                          <div className="bg-dark-elevated border border-gray-600 rounded-full w-8 h-8 flex items-center justify-center text-sm hover:border-gray-400 hover:bg-dark-surface transition-all duration-200 group-hover:scale-110">
                             {entry.emoji}
                           </div>
                           
                           {/* Time label */}
-                          <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-xs text-text-secondary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                          <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-xs text-text-secondary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                             {timeString}
                           </div>
                         </div>
