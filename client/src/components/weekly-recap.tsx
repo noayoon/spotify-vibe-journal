@@ -181,10 +181,15 @@ function WeeklyTimeline() {
                   }> = [];
 
                   allEntries.forEach((entry) => {
-                    // Find existing group within 2.5% distance
-                    const existingGroup = groupedEntries.find(group => 
-                      Math.abs(group.exactPosition - entry.exactPosition) < 2.5
-                    );
+                    // Find existing group within 1.5% distance (reduced threshold for better separation)
+                    const existingGroup = groupedEntries.find(group => {
+                      const distance = Math.abs(group.exactPosition - entry.exactPosition);
+                      const isSameDay = group.dayIndex === entry.dayIndex;
+                      
+                      // Only group if they're on the same day AND within 1.5% distance
+                      // 1.5% of timeline = roughly 2-3 hours on the same day
+                      return isSameDay && distance < 1.5;
+                    });
 
                     if (existingGroup) {
                       existingGroup.entries.push(entry);
