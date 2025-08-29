@@ -12,7 +12,7 @@ export default function Timeline() {
   return (
     <>
       <TopBar title="Your Vibe Timeline" />
-      <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6 pb-8">
         <div className="mb-6">
           <div className="flex items-center gap-4">
             <Select value={filter} onValueChange={(value) => setFilter(value as any)}>

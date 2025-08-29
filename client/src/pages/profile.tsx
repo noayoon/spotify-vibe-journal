@@ -54,7 +54,7 @@ export default function Profile() {
   return (
     <>
       <TopBar title="Profile & Settings" />
-      <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6 pb-8">
         <Card className="bg-dark-surface border-dark-elevated max-w-2xl">
           <CardHeader>
             <CardTitle className="text-text-primary">Profile & Settings</CardTitle>

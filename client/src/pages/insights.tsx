@@ -18,7 +18,7 @@ export default function Insights() {
   return (
     <>
       <TopBar title="Weekly Insights" />
-      <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-8">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-8 pb-8">
         {/* Main Weekly Recap - Spotify Style */}
         <WeeklyRecap />
 
