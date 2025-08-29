@@ -26,18 +26,36 @@ export function Sidebar() {
 
     const handleScroll = () => {
       const sections = sectionNavigation.map(nav => nav.sectionId);
+      let activeSection = "capture-vibe"; // default
       
-      for (const sectionId of sections) {
+      // Check which section is currently most visible
+      for (let i = 0; i < sections.length; i++) {
+        const sectionId = sections[i];
         const element = document.getElementById(sectionId);
         if (element) {
           const rect = element.getBoundingClientRect();
-          // Consider a section active if it's in the top half of the viewport
-          if (rect.top <= 200 && rect.bottom >= 100) {
-            setActiveSection(sectionId);
-            break;
+          const viewportHeight = window.innerHeight;
+          
+          // If section is in viewport (at least partially visible)
+          if (rect.top < viewportHeight * 0.6 && rect.bottom > 100) {
+            activeSection = sectionId;
+          }
+          
+          // Special case for the last section (history) - activate if we're near the bottom
+          if (i === sections.length - 1) {
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.pageYOffset;
+            const windowHeight = window.innerHeight;
+            
+            // If we're within 400px of the bottom, activate the last section
+            if (scrollTop + windowHeight >= documentHeight - 400) {
+              activeSection = sectionId;
+            }
           }
         }
       }
+      
+      setActiveSection(activeSection);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });

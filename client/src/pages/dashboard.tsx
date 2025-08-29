@@ -21,7 +21,7 @@ export default function Dashboard() {
         </section>
 
         {/* History Section */}
-        <section id="history" className="space-y-6">
+        <section id="history" className="space-y-6 pb-16">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-text-primary">Recent Vibes</h2>
           </div>
