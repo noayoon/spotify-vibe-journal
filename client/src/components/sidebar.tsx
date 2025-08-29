@@ -108,19 +108,7 @@ export function Sidebar() {
                   </div>
                 );
               })}
-              <div className="border-t border-dark-elevated my-4"></div>
-              <Link href="/profile">
-                <div
-                  className={cn(
-                    "flex items-center space-x-3 px-3 py-2.5 mx-2 rounded-md transition-all duration-150 ease-in-out cursor-pointer",
-                    "text-text-secondary hover:bg-dark-hover hover:text-text-primary"
-                  )}
-                  data-testid="link-profile"
-                >
-                  <User className="h-5 w-5" />
-                  <span>Profile</span>
-                </div>
-              </Link>
+
             </>
           ) : (
             // Regular navigation for other pages
