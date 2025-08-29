@@ -263,13 +263,37 @@ function WeeklyTimeline() {
           <div className="text-sm font-semibold text-text-primary mb-2">
             {tooltip.day}
           </div>
-          <div className="space-y-2 max-w-64">
+          <div className="space-y-3 max-w-80">
             {tooltip.entries.map((entry) => (
               <div key={entry.id} className="flex items-start gap-3">
-                <span className="text-lg mt-0.5">{entry.emoji}</span>
+                {/* Album Cover */}
+                <div className="flex-shrink-0">
+                  <img 
+                    src={entry.albumImageUrl} 
+                    alt={`${entry.trackName} album cover`}
+                    className="w-12 h-12 rounded object-cover"
+                    onError={(e) => {
+                      // Fallback to emoji if image fails to load
+                      e.currentTarget.style.display = 'none';
+                      const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                  <div 
+                    className="w-12 h-12 bg-dark-elevated rounded flex items-center justify-center text-lg hidden"
+                    style={{ display: 'none' }}
+                  >
+                    {entry.emoji}
+                  </div>
+                </div>
+                
+                {/* Track Info */}
                 <div className="flex-1 min-w-0">
-                  <div className="text-text-primary font-medium text-sm leading-tight mb-1">
-                    {entry.trackName}
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-lg">{entry.emoji}</span>
+                    <div className="text-text-primary font-medium text-sm leading-tight">
+                      {entry.trackName}
+                    </div>
                   </div>
                   <div className="text-text-secondary text-xs mb-1">
                     by {entry.artistName}
