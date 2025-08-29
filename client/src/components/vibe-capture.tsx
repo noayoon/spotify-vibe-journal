@@ -21,7 +21,7 @@ export function VibeCapture() {
   const { data: nowPlaying } = useNowPlaying();
 
   // Fetch user's most used emojis
-  const { data: mostUsedEmojis = [] } = useQuery({
+  const { data: mostUsedEmojis = [] } = useQuery<Array<{ emoji: string }>>({
     queryKey: ["/api/most-used-emojis"],
     enabled: true,
   });
@@ -53,7 +53,7 @@ export function VibeCapture() {
 
   // Combine most used emojis with default options, ensuring selected emoji appears
   let emojiOptions = mostUsedEmojis.length > 0 
-    ? [...new Set([...mostUsedEmojis.map((item: any) => item.emoji), ...DEFAULT_EMOJI_OPTIONS])]
+    ? Array.from(new Set([...mostUsedEmojis.map((item) => item.emoji), ...DEFAULT_EMOJI_OPTIONS]))
     : DEFAULT_EMOJI_OPTIONS;
 
   // If a selected emoji from picker isn't in the quick options, add it to the front
@@ -79,24 +79,29 @@ export function VibeCapture() {
       return;
     }
 
-    if (!nowPlaying?.isPlaying || !nowPlaying?.track) {
-      toast({
-        title: "No music playing",
-        description: "Start playing music on Spotify first",
-        variant: "destructive",
+    // If music is playing, capture with track info
+    if (nowPlaying?.isPlaying && nowPlaying?.track) {
+      captureVibeMutation.mutate({
+        emoji: selectedEmoji,
+        note: note.trim() || null,
+        trackName: nowPlaying.track.name,
+        artistName: nowPlaying.track.artist,
+        albumName: nowPlaying.track.album,
+        albumArt: nowPlaying.track.albumArt,
+        spotifyTrackId: nowPlaying.track.id,
       });
-      return;
+    } else {
+      // Allow capturing vibes without music playing
+      captureVibeMutation.mutate({
+        emoji: selectedEmoji,
+        note: note.trim() || null,
+        trackName: "No track playing",
+        artistName: "N/A",
+        albumName: "N/A",
+        albumArt: null,
+        spotifyTrackId: null,
+      });
     }
-
-    captureVibeMutation.mutate({
-      emoji: selectedEmoji,
-      note: note.trim() || null,
-      trackName: nowPlaying.track.name,
-      artistName: nowPlaying.track.artist,
-      albumName: nowPlaying.track.album,
-      albumArt: nowPlaying.track.albumArt,
-      spotifyTrackId: nowPlaying.track.id,
-    });
   };
 
   return (
@@ -164,7 +169,7 @@ export function VibeCapture() {
 
         <Button
           onClick={handleCapture}
-          disabled={captureVibeMutation.isPending || !nowPlaying?.isPlaying}
+          disabled={captureVibeMutation.isPending || !selectedEmoji}
           className="w-full bg-spotify hover:bg-spotify/90 text-dark-bg font-semibold py-3"
           data-testid="button-capture-vibe"
         >
