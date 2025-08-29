@@ -107,7 +107,7 @@ function WeeklyTimeline() {
             
             {/* Current time label */}
             <div 
-              className="absolute top-1 text-xs text-spotify font-medium whitespace-nowrap"
+              className="absolute -top-6 text-xs text-spotify font-medium whitespace-nowrap"
               style={{ 
                 left: `${Math.min(Math.max(exactCurrentPosition, 2), 98)}%`,
                 transform: 'translateX(-50%)'
@@ -119,7 +119,7 @@ function WeeklyTimeline() {
             {/* Day markers and timeline container */}
             <div className="relative">
               {/* Day labels */}
-              <div className="flex justify-between items-center mb-8 relative z-20">
+              <div className="flex justify-between items-center mb-8 relative z-20 mt-4">
                 {timeline.map((day) => (
                   <div key={day.day} className="flex flex-col items-center">
                     <div className="text-sm text-text-secondary font-medium">
