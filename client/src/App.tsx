@@ -15,9 +15,9 @@ import { Sidebar } from "@/components/sidebar";
 
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col lg:flex-row h-screen bg-dark-bg text-text-primary">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-dark-bg text-text-primary">
       <Sidebar />
-      <div className="flex-1 lg:ml-64 overflow-hidden">
+      <div className="flex-1 lg:ml-64 flex flex-col">
         {children}
       </div>
     </div>
