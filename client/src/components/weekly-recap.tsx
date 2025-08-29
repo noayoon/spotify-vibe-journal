@@ -171,61 +171,78 @@ function WeeklyTimeline() {
                   // Sort by position to detect overlaps
                   allEntries.sort((a, b) => a.exactPosition - b.exactPosition);
 
-                  // Calculate vertical offsets for overlapping entries
-                  const positionedEntries = allEntries.map((entry, index) => {
-                    let verticalOffset = 0;
-                    let stackLevel = 0;
-                    
-                    // Check for overlaps with previous entries
-                    for (let i = 0; i < index; i++) {
-                      const prevEntry = allEntries[i];
-                      const horizontalDistance = Math.abs(entry.exactPosition - prevEntry.exactPosition);
-                      
-                      // If entries are close horizontally (within 2.5% of total width), stack them vertically
-                      if (horizontalDistance < 2.5) {
-                        stackLevel++;
-                      }
+                  // Group overlapping entries
+                  const groupedEntries: Array<{
+                    entries: typeof allEntries;
+                    exactPosition: number;
+                    dayIndex: number;
+                    timeString: string;
+                  }> = [];
+
+                  allEntries.forEach((entry) => {
+                    // Find existing group within 2.5% distance
+                    const existingGroup = groupedEntries.find(group => 
+                      Math.abs(group.exactPosition - entry.exactPosition) < 2.5
+                    );
+
+                    if (existingGroup) {
+                      existingGroup.entries.push(entry);
+                    } else {
+                      groupedEntries.push({
+                        entries: [entry],
+                        exactPosition: entry.exactPosition,
+                        dayIndex: entry.dayIndex,
+                        timeString: entry.timeString
+                      });
                     }
-                    
-                    verticalOffset = stackLevel * 10; // 10px offset per stack level
-                    
-                    return { ...entry, verticalOffset };
                   });
 
-                  return positionedEntries.map((entry) => (
-                    <div
-                      key={entry.id}
-                      className="absolute cursor-pointer group"
-                      style={{
-                        left: `${entry.exactPosition}%`,
-                        transform: 'translateX(-50%)',
-                        top: `${entry.verticalOffset}px`
-                      }}
-                      onMouseEnter={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        setTooltip({
-                          x: rect.left + rect.width / 2,
-                          y: rect.top - 10,
-                          entries: [entry],
-                          day: `${['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][entry.dayIndex]} at ${entry.timeString}`
-                        });
-                      }}
-                      onMouseLeave={handleDayLeave}
-                      data-testid={`vibe-entry-${entry.id}`}
-                    >
-                      <div className="relative">
-                        {/* Emoji bubble */}
-                        <div className="bg-dark-elevated border border-gray-600 rounded-full w-8 h-8 flex items-center justify-center text-sm hover:border-gray-400 hover:bg-dark-surface transition-all duration-200 group-hover:scale-110">
-                          {entry.emoji}
-                        </div>
-                        
-                        {/* Time label */}
-                        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-xs text-text-secondary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                          {entry.timeString}
+                  return groupedEntries.map((group, groupIndex) => {
+                    const isMultiple = group.entries.length > 1;
+                    const allSameEmoji = group.entries.every(entry => entry.emoji === group.entries[0].emoji);
+                    
+                    // Display logic: show emoji if single entry or all same emoji, otherwise show count
+                    const displayContent = !isMultiple || allSameEmoji 
+                      ? group.entries[0].emoji 
+                      : group.entries.length.toString();
+
+                    return (
+                      <div
+                        key={`group-${groupIndex}`}
+                        className="absolute cursor-pointer group"
+                        style={{
+                          left: `${group.exactPosition}%`,
+                          transform: 'translateX(-50%)',
+                          top: '0px'
+                        }}
+                        onMouseEnter={(e) => {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          setTooltip({
+                            x: rect.left + rect.width / 2,
+                            y: rect.top - 10,
+                            entries: group.entries,
+                            day: `${['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][group.dayIndex]} at ${group.timeString}`
+                          });
+                        }}
+                        onMouseLeave={handleDayLeave}
+                        data-testid={`vibe-group-${groupIndex}`}
+                      >
+                        <div className="relative">
+                          {/* Emoji bubble or count */}
+                          <div className={`bg-dark-elevated border border-gray-600 rounded-full w-8 h-8 flex items-center justify-center text-sm hover:border-gray-400 hover:bg-dark-surface transition-all duration-200 group-hover:scale-110 ${
+                            !isMultiple || allSameEmoji ? '' : 'font-semibold text-text-primary'
+                          }`}>
+                            {displayContent}
+                          </div>
+                          
+                          {/* Time label */}
+                          <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-xs text-text-secondary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                            {group.timeString}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ));
+                    );
+                  });
                 })()}
               </div>
             </div>
