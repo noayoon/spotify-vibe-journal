@@ -110,30 +110,21 @@ export function Sidebar() {
               })}
 
             </>
-          ) : (
-            // Regular navigation for other pages
-            navigation.map((item) => {
-              const isActive = location === item.href;
-              const Icon = item.icon;
-              
-              return (
-                <Link key={item.name} href={item.href}>
-                  <div
-                    className={cn(
-                      "flex items-center space-x-3 px-3 py-2.5 mx-2 rounded-md transition-all duration-150 ease-in-out cursor-pointer",
-                      isActive
-                        ? "bg-dark-elevated text-spotify font-medium"
-                        : "text-text-secondary hover:bg-dark-hover hover:text-text-primary"
-                    )}
-                    data-testid={`link-${item.name.toLowerCase().replace(" ", "-")}`}
-                  >
-                    <Icon className="h-5 w-5" />
-                    <span>{item.name}</span>
-                  </div>
-                </Link>
-              );
-            })
-          )}
+          ) : location === "/profile" ? (
+            // Profile page navigation - just show back to home
+            <Link href="/">
+              <div
+                className={cn(
+                  "flex items-center space-x-3 px-3 py-2.5 mx-2 rounded-md transition-all duration-150 ease-in-out cursor-pointer",
+                  "text-text-secondary hover:bg-dark-hover hover:text-text-primary"
+                )}
+                data-testid="link-back-home"
+              >
+                <Plus className="h-5 w-5" />
+                <span>Back to Home</span>
+              </div>
+            </Link>
+          ) : null}
         </nav>
       </div>
     </div>
