@@ -150,7 +150,7 @@ function WeeklyTimeline() {
               </div>
 
               {/* Vibe entries positioned by time */}
-              <div className="absolute top-12 left-0 right-0 h-16 overflow-visible">
+              <div className="absolute top-16 left-0 right-0 h-16 overflow-visible">
                 {(() => {
                   // Flatten all entries with their positions and sort by time
                   const allEntries = timeline.flatMap((day, dayIndex) => 
