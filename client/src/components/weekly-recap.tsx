@@ -268,23 +268,31 @@ function WeeklyTimeline() {
               <div key={entry.id} className="flex items-start gap-3">
                 {/* Album Cover */}
                 <div className="flex-shrink-0">
-                  <img 
-                    src={entry.albumImageUrl} 
-                    alt={`${entry.trackName} album cover`}
-                    className="w-12 h-12 rounded object-cover"
-                    onError={(e) => {
-                      // Fallback to emoji if image fails to load
-                      e.currentTarget.style.display = 'none';
-                      const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = 'flex';
-                    }}
-                  />
-                  <div 
-                    className="w-12 h-12 bg-dark-elevated rounded flex items-center justify-center text-lg hidden"
-                    style={{ display: 'none' }}
-                  >
-                    {entry.emoji}
-                  </div>
+                  {entry.albumArt ? (
+                    <>
+                      <img 
+                        src={entry.albumArt} 
+                        alt={`${entry.trackName} album cover`}
+                        className="w-12 h-12 rounded object-cover"
+                        onError={(e) => {
+                          // Fallback to emoji if image fails to load
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                      <div 
+                        className="w-12 h-12 bg-dark-elevated rounded flex items-center justify-center text-lg hidden"
+                        style={{ display: 'none' }}
+                      >
+                        {entry.emoji}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="w-12 h-12 bg-dark-elevated rounded flex items-center justify-center text-lg">
+                      {entry.emoji}
+                    </div>
+                  )}
                 </div>
                 
                 {/* Track Info */}
