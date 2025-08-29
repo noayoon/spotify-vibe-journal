@@ -138,7 +138,7 @@ function WeeklyTimeline() {
                       <div className={`w-3 h-3 rounded-full border-2 mt-2 transition-all duration-200 ${
                         day.entries.length > 0 
                           ? isPartOfStreak 
-                            ? 'bg-orange-400 border-orange-400' 
+                            ? 'bg-spotify border-spotify' 
                             : 'bg-gray-300 border-gray-300'
                           : 'bg-transparent border-gray-600'
                       }`}>
