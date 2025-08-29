@@ -114,7 +114,7 @@ function WeeklyTimeline() {
           </div>
           <div className="relative pb-6">
             {/* Timeline line */}
-            <div className="absolute top-6 left-4 right-4 h-0.5 bg-gray-600"></div>
+            <div className="absolute top-6 left-0 right-0 h-0.5 bg-gray-600"></div>
             
             {/* Current time indicator */}
             <div 
