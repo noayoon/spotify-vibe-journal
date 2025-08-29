@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -55,11 +55,24 @@ export function VibeTimeline({ limit = 20, showLoadMore = false, filter = "all",
     },
   });
 
+  // Update allEntries when new data comes in
+  useEffect(() => {
+    if (entries) {
+      if (offset === 0) {
+        // First load or reset
+        setAllEntries(entries);
+      } else {
+        // Load more - append new entries
+        setAllEntries(prev => [...prev, ...entries]);
+      }
+    }
+  }, [entries, offset]);
+
   const loadMore = () => {
     setOffset(prev => prev + limit);
   };
 
-  if (isLoading && offset === 0) {
+  if (isLoading && allEntries.length === 0) {
     return (
       <Card className="bg-dark-surface border-dark-elevated">
         <CardHeader>
@@ -83,9 +96,9 @@ export function VibeTimeline({ limit = 20, showLoadMore = false, filter = "all",
     );
   }
 
-  const displayEntries = offset === 0 ? entries || [] : allEntries;
+  const displayEntries = allEntries;
 
-  if (displayEntries.length === 0) {
+  if (!isLoading && displayEntries.length === 0) {
     return (
       <Card className="bg-dark-surface border-dark-elevated">
         <CardHeader>
@@ -157,15 +170,16 @@ export function VibeTimeline({ limit = 20, showLoadMore = false, filter = "all",
           ))}
         </div>
         
-        {showLoadMore && entries && entries.length >= limit && (
+        {showLoadMore && entries && entries.length >= limit && !isLoading && (
           <div className="p-4 text-center border-t border-dark-elevated">
             <Button
               onClick={loadMore}
               variant="ghost"
               className="text-spotify hover:text-spotify/80 hover:bg-dark-elevated"
               data-testid="button-load-more"
+              disabled={isLoading}
             >
-              Load more vibes
+              {isLoading ? "Loading..." : "Load more vibes"}
             </Button>
           </div>
         )}
