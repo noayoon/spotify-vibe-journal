@@ -148,11 +148,11 @@ export function VibeTimeline({ limit = 20, showLoadMore = false, filter = "all",
                   )}
                 </div>
                 
-                <div className="text-right">
-                  <p className="text-xs text-text-secondary" data-testid="text-entry-timestamp">
+                <div className="text-right flex-shrink-0">
+                  <p className="text-xs text-text-secondary mb-1" data-testid="text-entry-timestamp">
                     {formatDistanceToNow(new Date(entry.createdAt), { addSuffix: true })}
                   </p>
-                  <div className="mt-1 flex gap-2">
+                  <div className="flex gap-2 justify-end">
                     <ShareDialog vibeEntry={entry} />
                     <DeleteVibeButton vibeId={entry.id} />
                   </div>
