@@ -83,13 +83,19 @@ function WeeklyTimeline() {
 
   const { timeline, currentDay, streak } = timelineData;
 
-  // Calculate exact current position including time of day
+  // Calculate exact current position with 12 PM (noon) as the center point under each day letter
   const now = new Date();
   const currentHours = now.getHours();
   const currentMinutes = now.getMinutes();
-  const currentTimePercent = (currentHours * 60 + currentMinutes) / (24 * 60);
+  
+  // Calculate offset from noon (12 PM = hour 12)
+  const totalMinutesFromNoon = (currentHours - 12) * 60 + currentMinutes;
+  // Convert to percentage of day (24 hours = 1440 minutes)
+  const offsetFromNoonPercent = totalMinutesFromNoon / (24 * 60);
+  
   const dayWidth = 100 / 7;
-  const exactCurrentPosition = (currentDay * dayWidth) + (currentTimePercent * dayWidth);
+  // Position at center of current day (where day letter is) plus offset from noon
+  const exactCurrentPosition = (currentDay * dayWidth) + (dayWidth / 2) + (offsetFromNoonPercent * dayWidth);
 
   return (
     <>
