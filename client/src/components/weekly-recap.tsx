@@ -91,7 +91,7 @@ function WeeklyTimeline() {
       <Card className="bg-dark-surface border-dark-elevated">
         <CardContent className="p-6">
           <h3 className="text-lg font-semibold text-text-primary mb-4">Weekly Timeline</h3>
-          <div className="relative">
+          <div className="relative pb-6">
             {/* Timeline line */}
             <div className="absolute top-6 left-4 right-4 h-0.5 bg-gray-600"></div>
             
@@ -135,7 +135,7 @@ function WeeklyTimeline() {
               </div>
 
               {/* Vibe entries positioned by time */}
-              <div className="absolute top-12 left-0 right-0 h-16">
+              <div className="absolute top-12 left-0 right-0 h-20 overflow-hidden">
                 {timeline.map((day, dayIndex) => 
                   day.entries.map((entry) => {
                     const entryTime = new Date(entry.createdAt);
@@ -187,7 +187,7 @@ function WeeklyTimeline() {
                           </div>
                           
                           {/* Time label */}
-                          <div className="absolute top-14 left-1/2 transform -translate-x-1/2 text-xs text-text-secondary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-xs text-text-secondary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                             {timeString}
                           </div>
                         </div>
