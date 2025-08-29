@@ -38,6 +38,9 @@ export const weeklyStats = pgTable("weekly_stats", {
   totalEntries: integer("total_entries").notNull().default(0),
   topMood: text("top_mood"),
   topArtist: text("top_artist"),
+  currentStreak: integer("current_streak").notNull().default(0),
+  longestStreak: integer("longest_streak").notNull().default(0),
+  lastStreakDate: timestamp("last_streak_date"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
